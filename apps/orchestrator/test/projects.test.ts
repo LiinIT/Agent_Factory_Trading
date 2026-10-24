@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
@@ -62,7 +62,7 @@ test('validateGitRemote nhận https/ssh chuẩn, chặn token trong URL', () =>
 
 test('chuyển nơi lưu: chép cả repo sang thư mục mới, xoá phiên agent cũ, về lại mặc định được', () => {
   const { desk, store, workspace, rules } = deskWithProject();
-  const task = store.insertTask({ projectId: 'demo', role: 'xung-kich', title: 'Lát 1', detail: 'làm', gate: false, expected: 'x', verification: 'y' });
+  const task = store.insertTask({ projectId: 'demo', role: 'ea-che-tao', title: 'Lát 1', detail: 'làm', gate: false, expected: 'x', verification: 'y' });
   store.updateTask(task.id, { sessionId: 'phien-cu', status: 'done' });
   const oldDir = workspace.projectDir('demo');
 
@@ -80,7 +80,7 @@ test('chuyển nơi lưu: chép cả repo sang thư mục mới, xoá phiên age
 
 test('không chuyển nơi lưu / push khi project đang có nhiệm vụ chạy', async () => {
   const { desk, store } = deskWithProject();
-  const task = store.insertTask({ projectId: 'demo', role: 'xung-kich', title: 'Lát 1', detail: 'làm', gate: false, expected: 'x', verification: 'y' });
+  const task = store.insertTask({ projectId: 'demo', role: 'ea-che-tao', title: 'Lát 1', detail: 'làm', gate: false, expected: 'x', verification: 'y' });
   store.updateTask(task.id, { status: 'running' });
   assert.throws(() => desk.moveDir('demo', '~/Documents/demo-app'), /đang có nhiệm vụ chạy/);
   desk.setRemote('demo', 'git@github.com:mia/demo.git');
@@ -135,17 +135,27 @@ test('Tham mưu trưởng lập project kèm nơi lưu; nơi lưu sai thì lập
   assert.match(outcome.rejected[0] ?? '', /nơi lưu "tuong-doi\/app-b" không dùng được .* đã lập ở nơi mặc định/);
 });
 
-test('project mới có thư mục setups/ (hồ sơ lên store) từ template thật, sạch key, đã commit', () => {
-  const root = mkdtempSync(join(tmpdir(), 'factory-setups-'));
+test('project EA mới từ template thật: thư mục ea/results/reports, ./dv2 trỏ về gốc DV2, brain-ea liên kết bộ não, sạch key, đã commit', () => {
+  const root = mkdtempSync(join(tmpdir(), 'factory-ea-'));
   const factoryRoot = join(import.meta.dirname, '../../..');
-  const workspace = new Workspace({ workspaceDir: root, templateDir: join(factoryRoot, 'templates/project'), skillsDir: join(factoryRoot, 'skills') });
-  workspace.create('app', 'App', 'brief');
-  const dir = workspace.projectDir('app');
-  for (const file of ['README.md', 'store-tasks.md', 'listing/vi.md', 'screenshots/README.md', 'icon/brief.md', 'privacy/data-safety.md', 'review-notes.md']) {
-    assert.equal(existsSync(join(dir, 'setups', file)), true, file);
-  }
-  const tracked = execFileSync('git', ['ls-files', 'setups'], { cwd: dir, encoding: 'utf8' });
-  assert.match(tracked, /setups\/store-tasks\.md/);
+  const workspace = new Workspace({
+    workspaceDir: root,
+    templateDir: join(factoryRoot, 'templates/project'),
+    skillsDir: join(factoryRoot, 'skills'),
+    factoryRoot,
+    brainEaDir: join(factoryRoot, 'brain/ea'),
+  });
+  workspace.create('bot', 'Bot', 'brief');
+  const dir = workspace.projectDir('bot');
+  for (const folder of ['ea', 'results', 'reports', 'brain']) assert.equal(existsSync(join(dir, folder)), true, folder);
+  const script = readFileSync(join(dir, 'dv2'), 'utf8');
+  assert.match(script, new RegExp(`${factoryRoot.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/apps/orchestrator/src/ea-cli.ts`));
+  assert.doesNotMatch(script, /__DV2_ROOT__/);
+  assert.ok((statSync(join(dir, 'dv2')).mode & 0o111) !== 0);
+  assert.equal(existsSync(join(dir, 'brain-ea/README.md')), true);
+  const tracked = execFileSync('git', ['ls-files'], { cwd: dir, encoding: 'utf8' });
+  assert.doesNotMatch(tracked, /brain-ea/);
+  assert.match(tracked, /^dv2$/m);
   assert.deepEqual(scanRepo(dir), []);
 });
 
@@ -153,11 +163,11 @@ test('xoá project: gõ đúng tên, thư mục vào Thùng rác, gỡ nhiệm v
   const trash = mkdtempSync(join(tmpdir(), 'factory-trash-'));
   const { desk, store, workspace } = deskWithProject(async (path) => renameSync(path, join(trash, 'demo')));
   const dir = workspace.projectDir('demo');
-  const task = store.insertTask({ projectId: 'demo', role: 'tac-chien', title: 'Phương án', detail: 'làm', gate: true, expected: 'x', verification: 'y' });
+  const task = store.insertTask({ projectId: 'demo', role: 'ea-nghien-cuu', title: 'Phương án', detail: 'làm', gate: true, expected: 'x', verification: 'y' });
   store.addTaskEvent(task.id, 'system', 'bắt đầu');
   store.addMessage('user', 'làm app', 'demo');
   store.insertRun({
-    taskId: task.id, projectId: 'demo', role: 'tac-chien', model: 'sonnet', ok: true, startedAt: new Date().toISOString(), durationMs: 1,
+    taskId: task.id, projectId: 'demo', role: 'ea-nghien-cuu', model: 'sonnet', ok: true, startedAt: new Date().toISOString(), durationMs: 1,
     usage: { inputTokens: 0, cacheCreationTokens: 0, cacheReadTokens: 0, outputTokens: 0 }, costUsd: 0.1, fiveHourDelta: null, sevenDayDelta: null, denials: 0,
   });
   store.setSetting('manager_pending_retry', { sender: 'user', text: 'làm app', projectId: 'demo' });
@@ -178,7 +188,7 @@ test('xoá project: gõ đúng tên, thư mục vào Thùng rác, gỡ nhiệm v
 
 test('xoá project bị chặn khi có nhiệm vụ chạy; Thùng rác lỗi thì DB giữ nguyên', async () => {
   const running = deskWithProject(async () => undefined);
-  const task = running.store.insertTask({ projectId: 'demo', role: 'xung-kich', title: 'Lát 1', detail: 'làm', gate: false, expected: 'x', verification: 'y' });
+  const task = running.store.insertTask({ projectId: 'demo', role: 'ea-che-tao', title: 'Lát 1', detail: 'làm', gate: false, expected: 'x', verification: 'y' });
   running.store.updateTask(task.id, { status: 'running' });
   await assert.rejects(running.desk.deleteProject('demo', 'Demo'), /đang có nhiệm vụ chạy/);
 
@@ -226,7 +236,7 @@ test('dọn file sinh tự động: chỉ mục trong danh sách; mục lỡ com
 
 test('dọn file / bổ sung khung bị chặn khi project đang có nhiệm vụ chạy', async () => {
   const { desk, store } = deskWithProject(async () => {});
-  const task = store.insertTask({ projectId: 'demo', role: 'xung-kich', title: 'Lát 1', detail: 'd', expected: 'e', verification: 'v', assignedBy: 'tham-muu-truong', gate: false, urgent: false });
+  const task = store.insertTask({ projectId: 'demo', role: 'ea-che-tao', title: 'Lát 1', detail: 'd', expected: 'e', verification: 'v', assignedBy: 'tham-muu-truong', gate: false, urgent: false });
   store.updateTask(task.id, { status: 'running' });
 
   await assert.rejects(desk.cleanGenerated('demo'), /đang có nhiệm vụ chạy/);
@@ -300,7 +310,7 @@ test('bổ sung khung chuẩn: thêm phần thiếu theo tên project, không gh
 
 test('Tham mưu trưởng bỏ nhiệm vụ, dọn file, bổ sung khung bằng lệnh máy; lỗi thì ghi lý do', async () => {
   const { store } = deskWithProject();
-  const task = store.insertTask({ projectId: 'demo', role: 'tac-chien', title: 'PRD', detail: 'd', expected: 'e', verification: 'v', assignedBy: 'tham-muu-truong', gate: true, urgent: false });
+  const task = store.insertTask({ projectId: 'demo', role: 'ea-nghien-cuu', title: 'PRD', detail: 'd', expected: 'e', verification: 'v', assignedBy: 'tham-muu-truong', gate: true, urgent: false });
   const calls: string[] = [];
   const projectOps: ProjectOps = {
     cancelTask: (taskId) => calls.push(`cancel ${taskId}`),

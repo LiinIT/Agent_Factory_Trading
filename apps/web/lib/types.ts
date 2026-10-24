@@ -5,7 +5,7 @@ export type Project = {
   name: string;
   brief: string;
   createdAt: string;
-  hasPrototype: boolean;
+  reports: string[];
   dir: string | null;
   path: string;
   gitRemote: string | null;

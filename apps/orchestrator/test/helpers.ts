@@ -11,10 +11,10 @@ import type { RoleDefinition, RunClaude, RunRequest, RunResult } from '../src/ty
 import { Workspace } from '../src/workspace.ts';
 
 export const TA_MON: ModeProfile = {
-  models: { 'kiem-soat': 'haiku' },
-  effort: { 'kiem-soat': 'low' },
+  models: { 'ea-soat-ma': 'haiku' },
+  effort: { 'ea-soat-ma': 'low' },
   machineCheck: true,
-  notes: { '*': 'TÀ MÔN', 'kiem-soat': 'đọc lỗi máy' },
+  notes: { '*': 'TÀ MÔN', 'ea-soat-ma': 'đọc lỗi máy' },
 };
 
 export const THRESHOLDS = {
@@ -42,19 +42,20 @@ export function role(name: string, gate = false): RoleDefinition {
     gate,
     timeoutMinutes: 1,
     allowedTools: ['Read'],
+    writes: [],
     prompt: `vai ${name}`,
   };
 }
 
 /**
- * Biên chế giả: tham-muu-truong, tac-chien (có cổng), xung-kich, kiem-soat.
+ * Biên chế giả: tham-muu-truong, ea-nghien-cuu (có cổng), ea-che-tao, ea-soat-ma, ea-nghiem-thu (có cổng).
  * Author: HoNgocKhanh
  * Company: MiaStudio
  * Time: 2026-10-16
  */
 export function fakeTeam(): Map<string, RoleDefinition> {
   return new Map(
-    [role('tham-muu-truong'), role('tac-chien', true), role('xung-kich'), role('kiem-soat'), role('nghiem-thu', true)].map((item) => [item.name, item]),
+    [role('tham-muu-truong'), role('ea-nghien-cuu', true), role('ea-che-tao'), role('ea-soat-ma'), role('ea-nghiem-thu', true)].map((item) => [item.name, item]),
   );
 }
 

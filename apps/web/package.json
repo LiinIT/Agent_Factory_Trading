@@ -2,11 +2,11 @@
   "name": "@factory/web",
   "private": true,
   "scripts": {
-    "dev": "next dev -H localhost -p 7401",
+    "dev": "next dev -H localhost -p 7411",
     "build": "next build",
-    "start": "next start -H localhost -p 7401",
+    "start": "next start -H localhost -p 7411",
     "typecheck": "tsc --noEmit",
-    "dev:https": "NEXT_DIST_DIR=.next-https next dev -H localhost -p 7443 --experimental-https"
+    "dev:https": "NEXT_DIST_DIR=.next-https next dev -H localhost -p 7444 --experimental-https"
   },
   "dependencies": {
     "cmdk": "1.1.1",

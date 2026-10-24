@@ -11,7 +11,7 @@ type SandboxFrameProps = {
 };
 
 /**
- * Khung cách ly hiện GUI demo, luôn thấy trọn máy: không có cỡ thì phủ kín vùng xem (bản demo
+ * Khung cách ly hiện báo cáo bot: không có cỡ thì phủ kín vùng xem (bản demo
  * tự co máy); có cỡ máy thì dựng đúng cỡ rồi thu nhỏ cho vừa vùng xem (không cắt, không cuộn).
  * Author: HoNgocKhanh
  * Company: MiaStudio
@@ -40,7 +40,7 @@ export function SandboxFrame({ src, width, height }: SandboxFrameProps) {
     <div ref={stage} className={`sandbox-stage ${isFixed ? 'is-fixed' : 'is-fill'}`}>
       <div className="sandbox-box" style={isFixed ? { width: (width ?? 0) * scale, height: (height ?? 0) * scale } : undefined}>
         <iframe
-          title="GUI demo"
+          title="Báo cáo bot"
           className="sandbox-frame"
           src={src}
           sandbox="allow-scripts allow-forms"

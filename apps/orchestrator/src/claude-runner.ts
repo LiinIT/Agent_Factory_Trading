@@ -19,6 +19,7 @@ const runningChildren = new Set<ChildProcess>();
  * Dựng tham số dòng lệnh cho `claude -p`: stream-json, chỉ những tool được phép,
  * tự từ chối mọi quyền ngoài danh sách (dontAsk), bỏ qua settings cấp user, và không
  * nạp MCP/connector nào (Notion, Drive… của tài khoản) — vừa an toàn vừa đỡ hàng chục nghìn token.
+ * Chỉ vai có công cụ trình duyệt mới bật `--chrome` (Claude in Chrome).
  * Author: HoNgocKhanh
  * Company: MiaStudio
  * Time: 2026-10-16
@@ -45,6 +46,8 @@ export function buildClaudeArgs(request: RunRequest): string[] {
   if (request.model !== FALLBACK_MODEL) args.push('--fallback-model', FALLBACK_MODEL);
   if (request.jsonSchema) args.push('--json-schema', JSON.stringify(request.jsonSchema));
   if (request.effort) args.push('--effort', request.effort);
+  if (request.browser) args.push('--chrome');
+  for (const dir of request.addDirs ?? []) args.push('--add-dir', dir);
   if (request.resumeSessionId) args.push('--resume', request.resumeSessionId);
   return args;
 }

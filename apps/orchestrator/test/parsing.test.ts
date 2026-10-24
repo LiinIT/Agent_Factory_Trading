@@ -11,7 +11,7 @@ import { join } from 'node:path';
 import { buildBriefing, isFaithful } from '../src/briefing.ts';
 import { windowDelta } from '../src/logistics.ts';
 import { checkPermission } from '../src/permission-policy.ts';
-import { prototypeRoot, servePrototype } from '../src/prototype.ts';
+import { listReports, reportsRoot, serveReport } from '../src/reports.ts';
 import { formatReport, parseReport } from '../src/report.ts';
 import { parseStreamLine, suggestPermissions } from '../src/stream-parser.ts';
 import { parseRoleFile } from '../src/team.ts';
@@ -190,22 +190,27 @@ function fakeResponse() {
   return { response, captured };
 }
 
-test('servePrototype: phục vụ file GUI demo với CSP sandbox, chặn thoát thư mục và symlink', () => {
-  const projectDir = mkdtempSync(join(tmpdir(), 'proto-'));
-  mkdirSync(join(projectDir, 'design/prototype'), { recursive: true });
-  writeFileSync(join(projectDir, 'design/prototype/index.html'), '<h1>GUI demo</h1>');
+test('serveReport: phục vụ báo cáo mới nhất với CSP sandbox, chặn thoát thư mục và symlink', () => {
+  const projectDir = mkdtempSync(join(tmpdir(), 'report-'));
+  mkdirSync(join(projectDir, 'reports'), { recursive: true });
+  writeFileSync(join(projectDir, 'reports/bot-2026-10-23.html'), '<h1>Báo cáo cũ</h1>');
+  writeFileSync(join(projectDir, 'reports/bot-2026-10-24.html'), '<h1>Báo cáo mới</h1>');
   writeFileSync(join(projectDir, 'secret.txt'), 'bí mật');
-  symlinkSync(join(projectDir, 'secret.txt'), join(projectDir, 'design/prototype/link.txt'));
+  symlinkSync(join(projectDir, 'secret.txt'), join(projectDir, 'reports/link.txt'));
 
-  const ok = fakeResponse();
-  servePrototype(ok.response, projectDir, '/');
-  assert.equal(ok.captured.status, 200);
-  assert.match(ok.captured.headers['content-security-policy'] ?? '', /^sandbox allow-scripts/);
-  assert.match(ok.captured.body, /GUI demo/);
+  const latest = fakeResponse();
+  serveReport(latest.response, projectDir, '/');
+  assert.equal(latest.captured.status, 200);
+  assert.match(latest.captured.headers['content-security-policy'] ?? '', /^sandbox allow-scripts/);
+  assert.match(latest.captured.body, /Báo cáo mới/);
 
-  for (const path of ['/../../secret.txt', '/link.txt']) {
+  const older = fakeResponse();
+  serveReport(older.response, projectDir, '/bot-2026-10-23.html');
+  assert.match(older.captured.body, /Báo cáo cũ/);
+
+  for (const path of ['/../secret.txt', '/link.txt']) {
     const blocked = fakeResponse();
-    servePrototype(blocked.response, projectDir, path);
+    serveReport(blocked.response, projectDir, path);
     assert.equal(blocked.captured.status, 404, path);
     assert.doesNotMatch(blocked.captured.body, /bí mật/);
   }
@@ -225,12 +230,12 @@ test('isFaithful: thiếu số liệu hoặc sai mẫu mở đầu thì loại b
   assert.equal(isFaithful('Thưa chỉ huy, hàng đợi 2, chờ duyệt 1.', facts), false);
 });
 
-test('cấu hình: workspaceDir hiểu ~/ và mặc định là workspace_apps_dv0', async () => {
+test('cấu hình: workspaceDir hiểu ~/ và mặc định là workspace_dv2', async () => {
   const { expandHome, loadConfig } = await import('../src/config.ts');
   const { homedir } = await import('node:os');
   assert.equal(expandHome('~/Documents/x'), `${homedir()}/Documents/x`);
   assert.equal(expandHome('workspace'), 'workspace');
-  assert.equal(loadConfig().workspaceDir, `${homedir()}/Documents/StudioMia_workspace/workspace_apps_dv0`);
+  assert.equal(loadConfig().workspaceDir, `${homedir()}/Documents/StudioMia_workspace/workspace_dv2`);
 });
 
 test('báo cáo có mục Cách chạy: thiếu thì "Không" (không in), có thì in dòng CÁCH CHẠY', () => {
@@ -242,23 +247,22 @@ test('báo cáo có mục Cách chạy: thiếu thì "Không" (không in), có t
   assert.match(formatReport(header, withRun!), /\nCÁCH CHẠY : flutter pub get\nflutter run -d "iPhone 17 Pro"$/);
 });
 
-test('GUI demo: ưu tiên design/prototype/, ban ghi lệch vào design/ thì vẫn mở được, chưa có thì báo chưa có', () => {
-  const projectDir = mkdtempSync(join(tmpdir(), 'proto-root-'));
-  assert.equal(prototypeRoot(projectDir), null);
+test('báo cáo: chưa có thư mục hoặc chưa có .html thì báo chưa có; liệt kê mới nhất trước, bỏ file không phải .html', () => {
+  const projectDir = mkdtempSync(join(tmpdir(), 'report-root-'));
+  assert.equal(reportsRoot(projectDir), null);
   const missing = fakeResponse();
-  servePrototype(missing.response, projectDir, '/');
+  serveReport(missing.response, projectDir, '/');
   assert.equal(missing.captured.status, 404);
 
-  mkdirSync(join(projectDir, 'design'), { recursive: true });
-  writeFileSync(join(projectDir, 'design/index.html'), '<h1>Demo lệch chỗ</h1>');
-  assert.equal(prototypeRoot(projectDir), join(projectDir, 'design'));
-  const fallback = fakeResponse();
-  servePrototype(fallback.response, projectDir, '/');
-  assert.match(fallback.captured.body, /Demo lệch chỗ/);
+  mkdirSync(join(projectDir, 'reports'), { recursive: true });
+  writeFileSync(join(projectDir, 'reports/.gitkeep'), '');
+  writeFileSync(join(projectDir, 'reports/ghi-chu.txt'), 'x');
+  assert.equal(reportsRoot(projectDir), null);
 
-  mkdirSync(join(projectDir, 'design/prototype'), { recursive: true });
-  writeFileSync(join(projectDir, 'design/prototype/index.html'), '<h1>Demo đúng chỗ</h1>');
-  assert.equal(prototypeRoot(projectDir), join(projectDir, 'design/prototype'));
+  writeFileSync(join(projectDir, 'reports/a-2026-10-01.html'), 'a');
+  writeFileSync(join(projectDir, 'reports/a-2026-10-02.html'), 'b');
+  assert.deepEqual(listReports(projectDir), ['a-2026-10-02.html', 'a-2026-10-01.html']);
+  assert.equal(reportsRoot(projectDir), join(projectDir, 'reports'));
 });
 
 test('vai có Bash nhận quy tắc lệnh đơn; quyền cấp sẵn đều qua được Ban Bảo mật', async () => {
@@ -268,7 +272,7 @@ test('vai có Bash nhận quy tắc lệnh đơn; quyền cấp sẵn đều qua
   const { FactoryStore } = await import('../src/store.ts');
   const team = loadTeam(join(import.meta.dirname, '../../../team'));
   const mode = new ModeState(new FactoryStore(':memory:'), {});
-  const xungKich = team.get('xung-kich');
+  const xungKich = team.get('ea-che-tao');
   const manager = team.get('tham-muu-truong');
   assert.ok(xungKich && manager);
   assert.match(mode.roleRun(xungKich).systemPrompt, /Quy tắc lệnh Bash/);
@@ -280,18 +284,18 @@ test('vai có Bash nhận quy tắc lệnh đơn; quyền cấp sẵn đều qua
   }
 });
 
-test('GUI demo: nhúng sẵn CSS / JS cục bộ vào trang, không nhúng file ngoài thư mục GUI demo', () => {
-  const projectDir = mkdtempSync(join(tmpdir(), 'proto-inline-'));
-  mkdirSync(join(projectDir, 'design'), { recursive: true });
+test('báo cáo: nhúng sẵn CSS / JS cục bộ vào trang, không nhúng file ngoài thư mục báo cáo', () => {
+  const projectDir = mkdtempSync(join(tmpdir(), 'report-inline-'));
+  mkdirSync(join(projectDir, 'reports'), { recursive: true });
   writeFileSync(join(projectDir, 'secret.js'), 'const token = "bí mật";');
-  writeFileSync(join(projectDir, 'design/style.css'), 'body { color: red; }');
-  writeFileSync(join(projectDir, 'design/app.js'), 'document.title = "</script>ok";');
+  writeFileSync(join(projectDir, 'reports/style.css'), 'body { color: red; }');
+  writeFileSync(join(projectDir, 'reports/app.js'), 'document.title = "</script>ok";');
   writeFileSync(
-    join(projectDir, 'design/index.html'),
+    join(projectDir, 'reports/bot-2026-10-24.html'),
     '<link rel="stylesheet" href="style.css"><link rel="icon" href="x.png"><script src="app.js"></script><script src="../secret.js"></script><script src="https://cdn.example/x.js"></script>',
   );
   const page = fakeResponse();
-  servePrototype(page.response, projectDir, '/');
+  serveReport(page.response, projectDir, '/');
   assert.match(page.captured.body, /<style>body \{ color: red; \}<\/style>/);
   assert.match(page.captured.body, /<script>document\.title = "<\\\/script>ok";<\/script>/);
   assert.match(page.captured.body, /<link rel="icon" href="x\.png">/);

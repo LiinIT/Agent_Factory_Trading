@@ -11,7 +11,7 @@ type PermissionGrantProps = {
 };
 
 /**
- * Cấp quyền cho task bị chặn: bấm quyền gợi ý hoặc tự nhập (vd `Bash(flutter pub *)`).
+ * Cấp quyền cho task bị chặn: bấm quyền gợi ý hoặc tự nhập (vd `Bash(./dv2 compile *)`).
  * Quyền chỉ áp dụng cho riêng task này; server từ chối quyền nguy hiểm.
  * Author: HoNgocKhanh
  * Company: MiaStudio
@@ -42,7 +42,7 @@ export function PermissionGrant({ task, onChanged }: PermissionGrantProps) {
         ))}
       </div>
       <form className="action-row" onSubmit={(event) => { event.preventDefault(); void grant(custom.trim()); }}>
-        <input value={custom} onChange={(event) => setCustom(event.target.value)} placeholder="Quyền khác, vd Bash(flutter pub *)" aria-label="Quyền tự nhập" />
+        <input value={custom} onChange={(event) => setCustom(event.target.value)} placeholder="Quyền khác, vd Bash(./dv2 compile *)" aria-label="Quyền tự nhập" />
         <button className="button" type="submit" disabled={!custom.trim()}>Cấp</button>
       </form>
       {task.extraTools.length > 0 ? <p className="muted">Đã cấp: {task.extraTools.join(', ')}</p> : null}

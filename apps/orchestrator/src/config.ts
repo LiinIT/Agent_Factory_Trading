@@ -2,6 +2,8 @@ import { readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, resolve } from 'node:path';
 
+import type { BrowserPolicy } from './browser-guard.ts';
+import type { EaConfig } from './ea-runner.ts';
 import type { FactoryMode, ModeProfile } from './mode.ts';
 
 export const ROOT_DIR = resolve(import.meta.dirname, '../../..');
@@ -25,6 +27,9 @@ export type FactoryConfig = {
   spendCapUsd: number;
   openAiPricePerMillion: { input: number; output: number };
   modes: Partial<Record<FactoryMode, ModeProfile>>;
+  ea: EaConfig;
+  browser: BrowserPolicy;
+  brainEaDir: string;
   workspaceDir: string;
   dataDir: string;
   basesDir: string;
@@ -56,6 +61,14 @@ export function loadConfig(rootDir: string = ROOT_DIR): FactoryConfig {
   return {
     ...raw,
     rootDir,
+    ea: {
+      ...raw.ea,
+      mt5Dir: expandHome(raw.ea.mt5Dir),
+      winePrefix: expandHome(raw.ea.winePrefix),
+      wineApp: expandHome(raw.ea.wineApp),
+    },
+    browser: { ...raw.browser, deviceId: process.env.DV2_CHROME_DEVICE_ID ?? raw.browser?.deviceId },
+    brainEaDir: resolve(rootDir, 'brain/ea'),
     workspaceDir: resolve(rootDir, expandHome(raw.workspaceDir)),
     dataDir: resolve(rootDir, raw.dataDir),
     basesDir: resolve(rootDir, 'bases'),

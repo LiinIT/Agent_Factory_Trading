@@ -42,7 +42,7 @@ export function TopBar({ state, connected, controls }: TopBarProps) {
     <header className="topbar">
       <div className="prompt">
         <TerminalSquare size={16} className="accent" aria-hidden />
-        <span className="prompt-user">thu-truong@dacvu_zero</span>
+        <span className="prompt-user">thu-truong@dv2</span>
         <span className="muted">:~$</span>
         <span className={`signal ${connected ? 'is-on' : 'is-off'}`}>{connected ? 'online' : 'offline'}</span>
         <button className={`signal mode-switch ${isTaMon ? 'is-ta-mon' : ''}`} onClick={controls.onToggleMode} title="Đổi chế độ (T)">

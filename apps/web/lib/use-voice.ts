@@ -88,7 +88,7 @@ export function useVoice(onFinal: (text: string) => void) {
   const start = useCallback(() => {
     const Constructor = recognitionConstructor();
     if (!isMicAllowedContext()) {
-      setVoiceError(`Trang đang mở ở ${window.location.origin} — không phải secure context nên trình duyệt chặn micro. Mở http://localhost:7401 hoặc chạy npm run web:https.`);
+      setVoiceError(`Trang đang mở ở ${window.location.origin} — không phải secure context nên trình duyệt chặn micro. Mở http://localhost:7411 hoặc chạy npm run web:https.`);
       return;
     }
     if (!Constructor || recognition.current) return;

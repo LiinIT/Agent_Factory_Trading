@@ -1,36 +1,30 @@
-import type { BaseDefinition } from './bases.ts';
 import { CHECK_ROLES, planBugFix } from './bug-loop.ts';
+import { browserBriefing, browserViolation, usesBrowser, type BrowserPolicy } from './browser-guard.ts';
 import type { FactoryBus } from './bus.ts';
+import { compileExpert, prepareRuns, runExec, runPlan, type EaConfig, type Exec } from './ea-runner.ts';
 import { log } from './logger.ts';
 import type { Logistics, RunStart } from './logistics.ts';
-import {
-  ACCEPTANCE_CHECK,
-  describeMachineCheck,
-  FULL_CHECK,
-  QUICK_CHECK,
-  runCommand,
-  runMachineCheck,
-  type CheckPlan,
-  type RunCommand,
-} from './machine-check.ts';
 import type { ManagerInput } from './manager.ts';
 import type { ModeState } from './mode.ts';
 import { checkPermission } from './permission-policy.ts';
 import { DEFAULT_PROVIDER } from './providers.ts';
 import type { QuotaState } from './quota-state.ts';
 import { formatReport, parseReport, REPORT_SCHEMA } from './report.ts';
+import { changedBetween, scopeViolations, snapshotRun } from './scope-guard.ts';
 import type { FactoryStore } from './store.ts';
 import type { AgentReport, RoleDefinition, RunClaude, RunResult, StreamEvent, Task } from './types.ts';
 import type { Workspace } from './workspace.ts';
 
 const MS_PER_MINUTE = 60_000;
 const PERCENT = 100;
-const CODE_ROLES = new Set(['xung-kich']);
+const CODE_ROLES = new Set(['ea-che-tao']);
 const RESULT_PREVIEW = 600;
 const OWNER = 'Chỉ huy trưởng';
-const CHECK_ROLE = 'kiem-soat';
-const ACCEPTANCE_ROLE = 'nghiem-thu';
-const MACHINE_MODEL = 'may-kiem-soat';
+const PREPARE_ROLE = 'ea-dung-ban-thu';
+const TEST_ROLE = 'ea-thu-nghiem';
+const BUILD_ROLE = 'ea-che-tao';
+const SOURCE_PATTERN = /^ea\/[^/]+\.mq5$/;
+const MACHINE_MODEL = 'may-ea';
 const DEFAULT_BUG_ROUNDS = 5;
 
 export type SchedulerDeps = {
@@ -42,9 +36,11 @@ export type SchedulerDeps = {
   quota: QuotaState;
   logistics: Logistics;
   mode: ModeState;
-  base: BaseDefinition | null;
-  runCheck?: RunCommand;
-  iosSimulator?: string | null;
+  ea?: EaConfig;
+  browser?: BrowserPolicy;
+  exec?: Exec;
+  factoryRoot?: string;
+  brainEaDir?: string;
   bugLoopMaxRounds?: number;
   notifyManager: (input: ManagerInput) => void;
   canRunRole?: (role: string) => boolean;
@@ -163,35 +159,49 @@ export class Scheduler {
     const plan = this.deps.mode.roleRun(role);
     const projectDir = workspace.projectDir(task.projectId);
     try {
-      let machineNote = '';
-      const checkPlan = this.machinePlan(role.name, plan.useMachineCheck);
-      if (checkPlan && this.deps.base) {
-        const check = await runMachineCheck(projectDir, this.deps.base.parts, this.deps.runCheck ?? runCommand, checkPlan);
+      const machine = await this.runMachineRole(task, role, projectDir);
+      if (machine) {
         if (this.stopping) return;
-        const summary = describeMachineCheck(check);
-        store.addTaskEvent(task.id, 'system', summary);
-        if (check.ok && plan.useMachineCheck && role.name === CHECK_ROLE) {
-          this.finish(store.requireTask(task.id), role, machineResult(task, check.durationMs, summary), start);
-          return;
-        }
-        machineNote = `\n\n## Kết quả máy đã chạy (không chạy lại toàn bộ — dùng làm bằng chứng)\n${summary}`;
+        this.finish(store.requireTask(task.id), role, machine, start);
+        return;
       }
+      const before = this.deps.factoryRoot ? snapshotRun(projectDir, this.deps.factoryRoot) : null;
+      const allowedTools = [...new Set([...role.allowedTools, ...task.extraTools])];
+      const browser = this.deps.browser && usesBrowser(allowedTools) ? this.deps.browser : null;
+      const tripwire: { reason: string | null } = { reason: null };
+      const basePrompt = buildTaskPrompt(task, store.getProject(task.projectId)?.name ?? task.projectId, role);
       const result = await this.deps.runClaude({
         cwd: projectDir,
-        prompt: `${buildTaskPrompt(task, store.getProject(task.projectId)?.name ?? task.projectId, role)}${machineNote}`,
+        prompt: browser ? `${basePrompt}\n\n${browserBriefing(browser)}` : basePrompt,
         systemPrompt: plan.systemPrompt,
         model: plan.model,
         effort: plan.effort,
         role: role.name,
-        allowedTools: [...new Set([...role.allowedTools, ...task.extraTools])],
+        allowedTools,
+        browser: browser !== null,
+        addDirs: this.deps.brainEaDir ? [this.deps.brainEaDir] : [],
         jsonSchema: REPORT_SCHEMA,
         timeoutMs: role.timeoutMinutes * MS_PER_MINUTE,
         resumeSessionId: task.feedback ? task.sessionId : null,
         signal: controller.signal,
-        onEvent: (event) => this.onStreamEvent(task.id, event, start, controller),
+        onEvent: (event) => {
+          this.onStreamEvent(task.id, event, start, controller);
+          const violation = browser && event.kind === 'tool' && !tripwire.reason ? browserViolation(event.text, browser.allowedHosts) : null;
+          if (violation) {
+            tripwire.reason = `Ban Bảo mật: ${violation}. Đã dừng nhiệm vụ.`;
+            controller.abort(tripwire.reason);
+          }
+        },
       });
       if (this.stopping) return;
-      this.finish(store.requireTask(task.id), role, result, start);
+      if (tripwire.reason) {
+        this.finish(store.requireTask(task.id), role, { ...result, ok: false, text: tripwire.reason }, start);
+        return;
+      }
+      const changed = before && this.deps.factoryRoot ? changedBetween(before, snapshotRun(projectDir, this.deps.factoryRoot)) : [];
+      const violations = scopeViolations(changed, role.writes);
+      const verified = result.ok && violations.length === 0 ? await this.verifyCompile(task, role, projectDir, changed, result) : result;
+      this.finish(store.requireTask(task.id), role, verified, start, violations);
     } catch (error) {
       log.error({ err: error, taskId: task.id }, '[Scheduler] lỗi khi chạy nhiệm vụ');
       this.fail(store.requireTask(task.id), String(error));
@@ -201,16 +211,56 @@ export class Scheduler {
   }
 
   /**
-   * Máy kiểm trước cho ban kiểm: Kiểm soát — rút gọn (Tà môn) hoặc đủ ma trận;
-   * Nghiệm thu — toàn bộ barem máy của mọi phần (format, analyze, test, build, store_check, integration).
+   * Ban do máy làm (không gọi AI): Dựng bàn thử sinh ini; Thử nghiệm chạy tester vốn 1000 real ticks.
+   * Trả null cho ban thường hoặc khi chưa cấu hình `ea`.
    * Author: HoNgocKhanh
    * Company: MiaStudio
-   * Time: 2026-10-17
+   * Time: 2026-10-24
    */
-  private machinePlan(roleName: string, isTaMon: boolean): CheckPlan | null {
-    if (roleName === ACCEPTANCE_ROLE) return { ...ACCEPTANCE_CHECK, simulator: this.deps.iosSimulator ?? null };
-    if (roleName === CHECK_ROLE) return isTaMon ? QUICK_CHECK : FULL_CHECK;
-    return null;
+  private async runMachineRole(task: Task, role: RoleDefinition, projectDir: string): Promise<RunResult | null> {
+    const { ea, store } = this.deps;
+    if (!ea || (role.name !== PREPARE_ROLE && role.name !== TEST_ROLE)) return null;
+    const started = Date.now();
+    const outcome =
+      role.name === PREPARE_ROLE
+        ? prepareRuns(projectDir, task.projectId, ea)
+        : await runPlan(projectDir, task.projectId, ea, this.deps.exec ?? runExec);
+    const evidence = outcome.summary.join('\n');
+    store.addTaskEvent(task.id, 'system', evidence);
+    return machineResult(task, Date.now() - started, evidence, outcome.ok);
+  }
+
+  /**
+   * Máy tự biên dịch lại các file `ea/*.mq5` mà Ban Chế tạo vừa đổi: người viết không tự chấm bài của mình.
+   * Không biên dịch sạch thì báo cáo bị đổi thành KHÔNG ĐẠT kèm log.
+   * Author: HoNgocKhanh
+   * Company: MiaStudio
+   * Time: 2026-10-24
+   */
+  private async verifyCompile(task: Task, role: RoleDefinition, projectDir: string, changed: string[], result: RunResult): Promise<RunResult> {
+    const { ea, store } = this.deps;
+    const sources = changed.filter((path) => SOURCE_PATTERN.test(path));
+    if (!ea || role.name !== BUILD_ROLE || sources.length === 0) return result;
+    const failures: string[] = [];
+    for (const source of sources) {
+      const compiled = await compileExpert(projectDir, task.projectId, source, ea, this.deps.exec ?? runExec);
+      store.addTaskEvent(task.id, 'system', `Máy biên dịch ${source}: ${compiled.message}`);
+      if (!compiled.ok) failures.push(`${source}: ${compiled.message}`);
+    }
+    if (failures.length === 0) return result;
+    const report = parseReport(result.structured);
+    const evidence = report?.evidence ?? '';
+    return {
+      ...result,
+      structured: {
+        mission: report?.mission ?? task.title,
+        result: 'KHÔNG ĐẠT',
+        evidence,
+        obstacles: `Ban Thông tin biên dịch lại và KHÔNG sạch (ban báo khác):\n${failures.join('\n')}`,
+        questions: [],
+        proposal: 'Giao Ban Chế tạo sửa lỗi biên dịch',
+      },
+    };
   }
 
   /**
@@ -242,7 +292,7 @@ export class Scheduler {
    * Company: MiaStudio
    * Time: 2026-10-16
    */
-  private finish(task: Task, role: RoleDefinition, result: RunResult, start: RunStart): void {
+  private finish(task: Task, role: RoleDefinition, result: RunResult, start: RunStart, violations: string[] = []): void {
     const { store, workspace, quota, logistics } = this.deps;
     if (result.quota) quota.update(result.quota);
     const run = logistics.recordRun({ taskId: task.id, projectId: task.projectId, role: role.name }, start, result);
@@ -257,6 +307,10 @@ export class Scheduler {
     }
     if (!result.ok) {
       this.fail(task, result.text);
+      return;
+    }
+    if (violations.length > 0) {
+      this.fail(task, `Ban Bảo mật: ${role.unit} ghi ngoài vùng được phép (${role.writes.join(', ')}): ${violations.join(', ')}. Không commit; Chỉ huy trưởng xem rồi xử lý.`);
       return;
     }
     workspace.commitAll(task.projectId, `${CODE_ROLES.has(role.name) ? 'feat' : 'docs'}(${role.name}): ${task.title}`);
@@ -303,7 +357,7 @@ export class Scheduler {
   }
 
   /**
-   * Vòng diệt lỗi: ban kiểm báo KHÔNG ĐẠT → máy tự giao Xung kích sửa + giao kiểm lại
+   * Vòng diệt lỗi: ban kiểm báo KHÔNG ĐẠT → máy tự giao Ban Chế tạo sửa + giao kiểm lại
    * (chen lên đầu hàng), không cần Tham mưu trưởng. Quá số vòng → dừng, xin lệnh.
    * Author: HoNgocKhanh
    * Company: MiaStudio
@@ -320,7 +374,7 @@ export class Scheduler {
     }
     store.insertTask(plan.recheck);
     const fix = store.insertTask(plan.fix);
-    store.addMessage('system', `Ban Thông tin: vòng diệt lỗi ${plan.round}/${maxRounds} — giao Đại đội Xung kích sửa (#${fix.id}), ${role.unit} kiểm lại ngay sau.`, task.projectId);
+    store.addMessage('system', `Ban Thông tin: vòng diệt lỗi ${plan.round}/${maxRounds} — giao Ban Chế tạo sửa (#${fix.id}), ${role.unit} kiểm lại ngay sau.`, task.projectId);
     log.info({ taskId: task.id, round: plan.round, fixId: fix.id }, '[Scheduler] vòng diệt lỗi');
   }
 
@@ -517,22 +571,22 @@ export class Scheduler {
 }
 
 /**
- * Kết quả giả lập khi máy kiểm soát ĐẠT: báo cáo ĐẠT, 0 token, không gọi AI.
+ * Kết quả của ban do máy làm: 0 token, không gọi AI; ĐẠT khi máy chạy xong và mọi lần chạy hợp lệ.
  * Author: HoNgocKhanh
  * Company: MiaStudio
- * Time: 2026-10-17
+ * Time: 2026-10-24
  */
-function machineResult(task: Task, durationMs: number, evidence: string): RunResult {
+function machineResult(task: Task, durationMs: number, evidence: string, passed: boolean): RunResult {
   return {
     ok: true,
     text: evidence,
     structured: {
       mission: task.title,
-      result: 'ĐẠT',
+      result: passed ? 'ĐẠT' : 'KHÔNG ĐẠT',
       evidence,
-      obstacles: 'Không',
+      obstacles: passed ? 'Không' : evidence,
       questions: [],
-      proposal: 'Giao nhiệm vụ kế tiếp theo kế hoạch',
+      proposal: passed ? 'Giao nhiệm vụ kế tiếp theo kế hoạch' : 'Xem lỗi máy báo, sửa kế hoạch hoặc EA rồi chạy lại',
     },
     sessionId: null,
     model: MACHINE_MODEL,
@@ -569,7 +623,7 @@ export function buildTaskPrompt(task: Task, projectName: string, role: RoleDefin
     `Người nhận: ${role.title} (${role.unit}) · Giao bởi: ${task.assignedBy} · Project: ${projectName}`,
     `## Nhiệm vụ: ${task.title}\n${task.detail}`,
     `## Kết quả mong muốn\n${task.expected || 'Theo tiêu chí trong brain/.'}`,
-    `## Cách thử\n${task.verification || 'Theo skill verification-loop và device-matrix.'}`,
+    `## Cách thử\n${task.verification || 'Theo skill verification-loop.'}`,
     'Kết thúc bằng báo cáo JSON theo quân lệnh trong CLAUDE.md. Chưa rõ điểm nào: hỏi, không đoán.',
   ];
   if (task.feedback) {

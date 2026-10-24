@@ -13,7 +13,7 @@ const ALT_TOKEN = 'sk-ant-oat-test-alt';
 const HOUR_MS = 3_600_000;
 const LIMITED: RunResult = { ...okResult('limit'), ok: false, isUsageLimit: true };
 
-const REQUEST: RunRequest = { cwd: '/tmp', prompt: 'x', systemPrompt: 'vai', model: 'sonnet', allowedTools: ['Read'], timeoutMs: 1000, role: 'xung-kich' };
+const REQUEST: RunRequest = { cwd: '/tmp', prompt: 'x', systemPrompt: 'vai', model: 'sonnet', allowedTools: ['Read'], timeoutMs: 1000, role: 'ea-che-tao' };
 
 /**
  * Router với engine giả ghi lại request, kho khoá trong RAM.
@@ -51,7 +51,7 @@ test('mặc định chạy Claude gói chính, không nạp khoá nào', async (
 
 test('gán Xung kích cho ChatGPT Plus: chạy Codex, model theo gán (không dùng alias Claude)', async () => {
   const { router, calls } = routerWith();
-  router.assign('xung-kich', 'chatgpt-plus', '');
+  router.assign('ea-che-tao', 'chatgpt-plus', '');
   await router.run(REQUEST);
   assert.equal(calls[0]?.engine, 'codex');
   assert.equal(calls[0]?.request.model, '');
@@ -65,14 +65,14 @@ test('Tham mưu trưởng không được gán nguồn Codex', () => {
 
 test('nguồn cần khoá: thiếu khoá thì từ chối, có khoá thì nạp vào env tiến trình con', async () => {
   const missing = routerWith();
-  missing.router.assign('xung-kich', 'openai-api');
+  missing.router.assign('ea-che-tao', 'openai-api');
   const refused = await missing.router.run(REQUEST);
   assert.equal(refused.ok, false);
   assert.match(refused.text, /chưa có khoá OPENAI_API_KEY/);
   assert.equal(missing.calls.length, 0);
 
   const ready = routerWith({}, { OPENAI_API_KEY: 'sk-test-1234567890abcd' });
-  ready.router.assign('xung-kich', 'openai-api');
+  ready.router.assign('ea-che-tao', 'openai-api');
   await ready.router.run(REQUEST);
   assert.equal(ready.calls[0]?.request.env?.OPENAI_API_KEY, 'sk-test-1234567890abcd');
   assert.equal(ready.calls[0]?.request.env?.CODEX_API_KEY, 'sk-test-1234567890abcd');
@@ -80,10 +80,10 @@ test('nguồn cần khoá: thiếu khoá thì từ chối, có khoá thì nạp 
 
 test('nguồn trả theo token bị chặn khi chạm trần chi tiêu ngày', async () => {
   const { router, store, calls } = routerWith({}, { ANTHROPIC_API_KEY: 'sk-ant-xxxx' });
-  router.assign('xung-kich', 'claude-api');
+  router.assign('ea-che-tao', 'claude-api');
   router.setCap(1);
   store.insertRun({
-    taskId: null, projectId: null, role: 'xung-kich', model: 'sonnet', ok: true, startedAt: new Date().toISOString(), durationMs: 1,
+    taskId: null, projectId: null, role: 'ea-che-tao', model: 'sonnet', ok: true, startedAt: new Date().toISOString(), durationMs: 1,
     usage: { inputTokens: 0, cacheCreationTokens: 0, cacheReadTokens: 0, outputTokens: 0 }, costUsd: 1.5, fiveHourDelta: null, sevenDayDelta: null, denials: 0, provider: 'claude-api',
   });
   const result = await router.run(REQUEST);
@@ -130,7 +130,7 @@ test('cả hai tài khoản đều nghỉ: hàng đợi dừng, ban không chạ
   assert.equal(quota.isPaused(), false);
   quota.markUsageLimit('claude-alt');
   assert.equal(quota.isPaused(), true);
-  assert.equal(router.canRun('xung-kich'), false);
+  assert.equal(router.canRun('ea-che-tao'), false);
   const result = await router.run(REQUEST);
   assert.equal(result.isUsageLimit, true);
   assert.equal(calls.length, 0);
@@ -151,7 +151,7 @@ test('quota ghi riêng từng nguồn: tài khoản phụ vượt ngưỡng khô
 test('quota trong kết quả được gắn tên nguồn đã chạy', async () => {
   const snapshot: QuotaSnapshot = { status: 'allowed', fiveHour: null, sevenDay: null, updatedAt: 1 };
   const { router } = routerWith({ claude: [{ ...okResult('ok'), quota: snapshot }] }, { CLAUDE_CODE_OAUTH_TOKEN: ALT_TOKEN });
-  router.assign('xung-kich', 'claude-alt');
+  router.assign('ea-che-tao', 'claude-alt');
   const result = await router.run(REQUEST);
   assert.equal(result.quota?.provider, 'claude-alt');
 });
@@ -159,7 +159,7 @@ test('quota trong kết quả được gắn tên nguồn đã chạy', async ()
 test('phiên của nguồn khác thì không resume (đổi nguồn giữa chừng)', async () => {
   const { router, calls } = routerWith();
   await router.run(REQUEST);
-  router.assign('xung-kich', 'chatgpt-plus');
+  router.assign('ea-che-tao', 'chatgpt-plus');
   await router.run({ ...REQUEST, resumeSessionId: 'session-1' });
   assert.equal(calls[1]?.request.resumeSessionId, null);
 });

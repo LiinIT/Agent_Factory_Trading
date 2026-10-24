@@ -84,6 +84,7 @@ export type RoleDefinition = {
   gate: boolean;
   timeoutMinutes: number;
   allowedTools: string[];
+  writes: string[];
   prompt: string;
 };
 
@@ -162,6 +163,8 @@ export type RunRequest = {
   effort?: string;
   role?: string;
   env?: Record<string, string>;
+  browser?: boolean;
+  addDirs?: string[];
   timeoutMs: number;
   resumeSessionId?: string | null;
   signal?: AbortSignal;

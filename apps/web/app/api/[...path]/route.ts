@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-const ORCHESTRATOR_URL = process.env.ORCHESTRATOR_URL ?? 'http://127.0.0.1:7400';
+const ORCHESTRATOR_URL = process.env.ORCHESTRATOR_URL ?? 'http://127.0.0.1:7410';
 const TOKEN_FILE = process.env.FACTORY_TOKEN_FILE ?? resolve(process.cwd(), '../../data/token');
 
 type RouteContext = { params: Promise<{ path: string[] }> };

@@ -14,7 +14,7 @@ import { DamageScreen } from './damage-screen';
 import { EnvScreen } from './env-screen';
 import { QuotaScreen } from './quota-screen';
 import { ReportsScreen } from './reports-screen';
-import { SandboxScreen } from './sandbox-screen';
+import { BotReportScreen } from './bot-report-screen';
 
 export type ScreenContentProps = {
   id: ScreenId;
@@ -25,7 +25,6 @@ export type ScreenContentProps = {
   onSelectTask: (taskId: number | null) => void;
   onProjectChange: (projectId: string | null) => void;
   onTogglePause: () => void;
-  onOpenSandbox: () => void;
   onChanged: () => void;
 };
 
@@ -36,7 +35,7 @@ export type ScreenContentProps = {
  * Time: 2026-10-16
  */
 export function ScreenContent(props: ScreenContentProps) {
-  const { id, state, liveLogs, selectedTaskId, projectId, onSelectTask, onProjectChange, onTogglePause, onOpenSandbox, onChanged } = props;
+  const { id, state, liveLogs, selectedTaskId, projectId, onSelectTask, onProjectChange, onTogglePause, onChanged } = props;
   const selectedTask = state.tasks.find((task) => task.id === selectedTaskId) ?? null;
   if (id === 'chat') {
     return (
@@ -60,7 +59,6 @@ export function ScreenContent(props: ScreenContentProps) {
             task={task}
             projectPath={state.projects.find((project) => project.id === task.projectId)?.path ?? null}
             onSelect={onSelectTask}
-            onOpenSandbox={onOpenSandbox}
             onChanged={onChanged}
           />
         ))}
@@ -83,7 +81,7 @@ export function ScreenContent(props: ScreenContentProps) {
   if (id === 'tree') return <SystemTree state={state} selectedTaskId={selectedTaskId} onSelectTask={onSelectTask} />;
   if (id === 'reports') return <ReportsScreen messages={state.messages} projectId={projectId} />;
   if (id === 'damage') return <DamageScreen state={state} />;
-  if (id === 'sandbox') return <SandboxScreen state={state} onChanged={onChanged} />;
+  if (id === 'bot-reports') return <BotReportScreen state={state} />;
   if (id === 'env') return <EnvScreen />;
   return <QuotaScreen state={state} onTogglePause={onTogglePause} />;
 }

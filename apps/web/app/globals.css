@@ -369,7 +369,7 @@ textarea { width: 100%; resize: vertical; }
   .topbar-right .mini-meter { display: none; }
 }
 
-/* Quân lệnh: chuỗi chỉ huy, báo cáo, câu hỏi, thiệt hại, GUI demo */
+/* Quân lệnh: chuỗi chỉ huy, báo cáo, câu hỏi, thiệt hại, báo cáo bot */
 .small { font-size: 11px; }
 .chain { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; font-size: 12px; }
 .rail-meta { font-size: 10.5px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

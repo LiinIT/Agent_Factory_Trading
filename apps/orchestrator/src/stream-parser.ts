@@ -114,7 +114,7 @@ export function suggestPermissions(denials: unknown): string[] {
  */
 function summarizeTool(name: string, input: unknown): string {
   const fields = (input ?? {}) as Record<string, unknown>;
-  const target = fields.command ?? fields.file_path ?? fields.pattern ?? fields.query ?? fields.skill ?? '';
+  const target = fields.command ?? fields.file_path ?? fields.pattern ?? fields.query ?? fields.skill ?? fields.url ?? fields.action ?? '';
   const summary = `${name}${target ? `: ${String(target)}` : ''}`;
   return summary.length > MAX_TOOL_SUMMARY ? `${summary.slice(0, MAX_TOOL_SUMMARY)}…` : summary;
 }

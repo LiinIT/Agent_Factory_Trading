@@ -111,7 +111,7 @@ export function ChatPanel({ messages, projects, projectId, managerBusy, onProjec
         </select>
       </div>
       <div className="chat-list">
-        {visible.length === 0 ? <p className="muted">Chỉ huy trưởng ra lệnh: muốn làm app gì?</p> : null}
+        {visible.length === 0 ? <p className="muted">Chỉ huy trưởng ra lệnh: muốn nghiên cứu hay làm bot EA nào?</p> : null}
         {visible.map((message) => (
           <Fragment key={message.id}>
             <ChatMessage message={message} />
@@ -130,7 +130,7 @@ export function ChatPanel({ messages, projects, projectId, managerBusy, onProjec
       <form className="composer" onSubmit={(event) => { event.preventDefault(); void send(draft, 'draft'); }}>
         <textarea
           value={draft}
-          placeholder="Lệnh, ví dụ: làm app ghi chú chi tiêu cá nhân… (ô trống: giữ Space để nói)"
+          placeholder="Lệnh, ví dụ: làm bot vàng M15 theo xu hướng, vốn 1000… (ô trống: giữ Space để nói)"
           onChange={(event) => setDraft(event.target.value)}
           ref={input}
           onKeyDown={(event) => {

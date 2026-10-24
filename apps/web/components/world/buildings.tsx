@@ -22,7 +22,7 @@ function Pyramid({ center, half, base, height }: { center: GridPoint; half: numb
 }
 
 /**
- * Ban Tác chiến — lều chỉ huy: đế + lều mái nhọn + cột cờ.
+ * Công trình kiểu lều chỉ huy: đế + lều mái nhọn + cột cờ.
  * Author: HoNgocKhanh
  * Company: MiaStudio
  * Time: 2026-10-17
@@ -42,7 +42,7 @@ export function CommandTent({ center }: BuildingProps) {
 }
 
 /**
- * Ban Ngoại giao — tấm "bộ mặt" lớn đứng trên bệ (giống bảng trình chiếu).
+ * Công trình kiểu tấm bảng đứng trên bệ (giống bảng trình chiếu).
  * Author: HoNgocKhanh
  * Company: MiaStudio
  * Time: 2026-10-17
@@ -65,7 +65,7 @@ export function FacadeBoard({ center }: BuildingProps) {
 }
 
 /**
- * Ban Công binh — cần cẩu: thân cột, cần ngang, dây móc, khối vật liệu.
+ * Công trình kiểu cần cẩu: thân cột, cần ngang, dây móc, khối vật liệu.
  * Author: HoNgocKhanh
  * Company: MiaStudio
  * Time: 2026-10-17
@@ -86,7 +86,7 @@ export function Crane({ center }: BuildingProps) {
 }
 
 /**
- * Đại đội Xung kích — doanh trại: khối dài có mái, lính chạy quanh khi đang làm.
+ * Công trình kiểu doanh trại: khối dài có mái, lính chạy quanh khi đang làm.
  * Author: HoNgocKhanh
  * Company: MiaStudio
  * Time: 2026-10-17
@@ -116,7 +116,7 @@ export function Barracks({ center }: BuildingProps) {
 }
 
 /**
- * Ban Kiểm soát — tháp canh: thân cao, buồng gác phía trên.
+ * Công trình kiểu tháp canh: thân cao, buồng gác phía trên.
  * Author: HoNgocKhanh
  * Company: MiaStudio
  * Time: 2026-10-17
@@ -156,10 +156,22 @@ export function ReviewHall({ center }: BuildingProps) {
  * Time: 2026-10-17
  */
 export function BuildingFor({ role, center }: { role: string; center: GridPoint }) {
-  if (role === 'tac-chien') return <CommandTent center={center} />;
-  if (role === 'ngoai-giao') return <FacadeBoard center={center} />;
-  if (role === 'cong-binh') return <Crane center={center} />;
-  if (role === 'xung-kich') return <Barracks center={center} />;
-  if (role === 'kiem-soat') return <Watchtower center={center} />;
-  return <ReviewHall center={center} />;
+  const Building = BUILDINGS[role] ?? ReviewHall;
+  return <Building center={center} />;
 }
+
+const BUILDINGS: Record<string, (props: BuildingProps) => React.JSX.Element> = {
+  'ea-trinh-sat': Watchtower,
+  'ea-mo-xe': FacadeBoard,
+  'ea-nghien-cuu': CommandTent,
+  'ea-thiet-ke': Crane,
+  'ea-che-tao': Barracks,
+  'ea-soat-ma': ReviewHall,
+  'ea-dung-ban-thu': Barracks,
+  'ea-thu-nghiem': Watchtower,
+  'ea-phan-tich': ReviewHall,
+  'ea-phan-bien': CommandTent,
+  'ea-nghiem-thu': ReviewHall,
+  'ea-ghi-nho': FacadeBoard,
+  'ea-bao-cao': Crane,
+};
