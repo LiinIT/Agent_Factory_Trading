@@ -1,0 +1,3 @@
+#!/bin/sh
+# Chặn commit nếu file đã stage chứa key/token hoặc là file bí mật (scripts/check-secrets.mts).
+exec node scripts/check-secrets.mts

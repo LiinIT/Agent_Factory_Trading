@@ -1,0 +1,30 @@
+node_modules/
+.next*/
+certificates/
+next-env.d.ts
+*.tsbuildinfo
+
+# Dữ liệu chạy: DB, token, log
+data/
+
+# Các project do agent tạo ra — mỗi project là một git repo riêng
+workspace/
+
+.DS_Store
+
+# Bí mật — nghiêm cấm commit (khoá thật lưu trong Keychain qua màn Env)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.mobileprovision
+key.properties
+google-services.json
+GoogleService-Info.plist
+id_rsa*
+id_ed25519*

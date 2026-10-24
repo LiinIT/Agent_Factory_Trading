@@ -1,0 +1,50 @@
+{
+  "host": "127.0.0.1",
+  "port": 7400,
+  "concurrency": 1,
+  "taskTimeoutMinutes": 45,
+  "managerTimeoutMinutes": 5,
+  "managerHistoryLimit": 10,
+  "quota": {
+    "pauseAtFiveHourUtilization": 0.9,
+    "pauseAtSevenDayUtilization": 0.97,
+    "fallbackPauseMinutes": 60,
+    "alarmFiveHourDeltaPerTask": null
+  },
+  "workspaceDir": "~/Documents/StudioMia_workspace/workspace_apps_dv0",
+  "dataDir": "data",
+  "localModel": "hermes3",
+  "modes": {
+    "ta-mon": {
+      "models": {
+        "tham-muu-truong": "sonnet",
+        "tac-chien": "haiku",
+        "ngoai-giao": "sonnet",
+        "cong-binh": "sonnet",
+        "xung-kich": "sonnet",
+        "kiem-soat": "haiku",
+        "nghiem-thu": "haiku"
+      },
+      "effort": {
+        "tac-chien": "low",
+        "kiem-soat": "low",
+        "nghiem-thu": "low"
+      },
+      "machineCheck": true,
+      "notes": {
+        "*": "CHẾ ĐỘ TÀ MÔN — tiết kiệm tối đa: đọc ít file nhất, không đọc lại file đã đọc, ưu tiên base barem và pattern có sẵn, báo cáo ngắn gọn.",
+        "ngoai-giao": "GUI demo dạng wireframe: khối xám, chữ thật, không trang trí; vẫn đủ màn hình, luồng và thanh chuyển iPhone/Android/Web.",
+        "xung-kich": "Test thiết bị dùng ma trận rút gọn: flutter test --reporter failures-only --dart-define=DEVICE_MATRIX=quick.",
+        "kiem-soat": "Máy đã chạy analyze/test và báo lỗi bên dưới; chỉ phân tích lỗi đó, không chạy lại toàn bộ."
+      }
+    }
+  },
+  "bugLoop": {
+    "maxRounds": 5
+  },
+  "spendCapUsd": 5,
+  "openAiPricePerMillion": {
+    "input": 1.25,
+    "output": 10
+  }
+}

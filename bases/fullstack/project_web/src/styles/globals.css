@@ -1,0 +1,25 @@
+:root { --bg: #f6f7f9; --card: #fff; --text: #1c2430; --muted: #6b7686; --primary: #2463eb; --danger: #c62828; --border: #e2e6eb; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); }
+a { color: var(--primary); }
+.center { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 16px; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; width: 100%; max-width: 720px; }
+.form { display: flex; flex-direction: column; gap: 12px; max-width: 380px; }
+.form label { display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+.form input { padding: 10px; border: 1px solid var(--border); border-radius: 8px; font: inherit; }
+.button { display: inline-flex; align-items: center; justify-content: center; padding: 8px 14px; border: 1px solid var(--border); border-radius: 8px; background: #fff; color: var(--text); font: inherit; cursor: pointer; text-decoration: none; }
+.button.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+.button:disabled { opacity: 0.5; cursor: default; }
+.row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.muted { color: var(--muted); }
+.error { color: var(--danger); margin: 0; }
+.error-box { display: flex; gap: 12px; align-items: center; color: var(--danger); }
+.shell { min-height: 100vh; }
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 20px; background: var(--card); border-bottom: 1px solid var(--border); }
+.content { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td { text-align: left; padding: 8px; border-bottom: 1px solid var(--border); }
+.pager { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+.profile { display: grid; grid-template-columns: 120px 1fr; gap: 8px; max-width: 420px; }
+.profile dt { color: var(--muted); }
+.profile dd { margin: 0; }

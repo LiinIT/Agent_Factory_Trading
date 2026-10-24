@@ -1,0 +1,25 @@
+{
+  "name": "@factory/web",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -H localhost -p 7401",
+    "build": "next build",
+    "start": "next start -H localhost -p 7401",
+    "typecheck": "tsc --noEmit",
+    "dev:https": "NEXT_DIST_DIR=.next-https next dev -H localhost -p 7443 --experimental-https"
+  },
+  "dependencies": {
+    "cmdk": "1.1.1",
+    "lucide-react": "0.544.0",
+    "motion": "12.23.12",
+    "next": "15.5.28",
+    "react": "19.1.1",
+    "react-dom": "19.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "24.3.0",
+    "@types/react": "19.1.12",
+    "@types/react-dom": "19.1.9",
+    "typescript": "5.9.2"
+  }
+}

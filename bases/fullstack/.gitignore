@@ -1,0 +1,17 @@
+# Bí mật: chỉ commit file *.example
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+key.properties
+
+# Hệ điều hành / editor
+.DS_Store
+.idea/
+*.iml
+
+# Từng phần có .gitignore riêng: app/ (Flutter), be/ (NestJS), web/ (Next.js)
