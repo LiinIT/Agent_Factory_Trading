@@ -59,6 +59,13 @@ test('usesBrowser và buildClaudeArgs: chỉ bật --chrome khi vai có tool tr�
   assert.equal(buildClaudeArgs(base).includes('--chrome'), false);
 });
 
+test('buildClaudeArgs: thư mục thêm (bộ não chung) đi qua --add-dir để Read/Write liên kết brain-ea/ không bị chặn', () => {
+  const base = { cwd: '/x', prompt: 'p', systemPrompt: 's', model: 'sonnet', allowedTools: ['Read'], timeoutMs: 1000 };
+  const args = buildClaudeArgs({ ...base, addDirs: ['/dv2/brain/ea'] });
+  assert.equal(args[args.indexOf('--add-dir') + 1], '/dv2/brain/ea');
+  assert.equal(buildClaudeArgs(base).includes('--add-dir'), false);
+});
+
 test('browserBriefing nêu tên miền, quy tắc chỉ đọc, và deviceId khi có', () => {
   const text = browserBriefing({ allowedHosts: HOSTS, deviceId: 'D-9' });
   assert.match(text, /tradingview\.com, mql5\.com/);

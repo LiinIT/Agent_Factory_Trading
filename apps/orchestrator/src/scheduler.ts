@@ -40,6 +40,7 @@ export type SchedulerDeps = {
   browser?: BrowserPolicy;
   exec?: Exec;
   factoryRoot?: string;
+  brainEaDir?: string;
   bugLoopMaxRounds?: number;
   notifyManager: (input: ManagerInput) => void;
   canRunRole?: (role: string) => boolean;
@@ -178,6 +179,7 @@ export class Scheduler {
         role: role.name,
         allowedTools,
         browser: browser !== null,
+        addDirs: this.deps.brainEaDir ? [this.deps.brainEaDir] : [],
         jsonSchema: REPORT_SCHEMA,
         timeoutMs: role.timeoutMinutes * MS_PER_MINUTE,
         resumeSessionId: task.feedback ? task.sessionId : null,

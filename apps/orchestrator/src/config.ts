@@ -67,6 +67,7 @@ export function loadConfig(rootDir: string = ROOT_DIR): FactoryConfig {
       winePrefix: expandHome(raw.ea.winePrefix),
       wineApp: expandHome(raw.ea.wineApp),
     },
+    browser: { ...raw.browser, deviceId: process.env.DV2_CHROME_DEVICE_ID ?? raw.browser?.deviceId },
     brainEaDir: resolve(rootDir, 'brain/ea'),
     workspaceDir: resolve(rootDir, expandHome(raw.workspaceDir)),
     dataDir: resolve(rootDir, raw.dataDir),

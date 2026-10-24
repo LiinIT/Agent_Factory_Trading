@@ -44,6 +44,7 @@ npm run web            # http://localhost:7411
 npm test               # = node --test 'test/*.test.ts' trong apps/orchestrator
 npm run typecheck
 ```
+Có nhiều Chrome cùng kết nối với tài khoản Claude: đặt `DV2_CHROME_DEVICE_ID=<deviceId>` (lấy từ `list_connected_browsers`) trước khi chạy orchestrator để Ban Trinh sát dùng đúng trình duyệt; không ghi mã thiết bị vào `config/factory.json`.
 Hoặc bấm đúp `DV2.command` (macOS) / `DV2.bat` (Windows). Project EA lưu ở `~/Documents/StudioMia_workspace/workspace_dv2/<id>` (mỗi project một git repo local). Trong project: `./dv2 compile ea/<tên>.mq5`.
 
 ## Giấy phép & ghi công

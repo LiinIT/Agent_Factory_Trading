@@ -133,6 +133,7 @@ async function main(): Promise<void> {
     ea: config.ea,
     browser: config.browser,
     factoryRoot: ROOT_DIR,
+    brainEaDir: config.brainEaDir,
     bugLoopMaxRounds: config.bugLoop.maxRounds,
     notifyManager: (input) => void manager.consult(input),
     canRunRole: (role) => router.canRun(role),

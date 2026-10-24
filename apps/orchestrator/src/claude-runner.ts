@@ -47,6 +47,7 @@ export function buildClaudeArgs(request: RunRequest): string[] {
   if (request.jsonSchema) args.push('--json-schema', JSON.stringify(request.jsonSchema));
   if (request.effort) args.push('--effort', request.effort);
   if (request.browser) args.push('--chrome');
+  for (const dir of request.addDirs ?? []) args.push('--add-dir', dir);
   if (request.resumeSessionId) args.push('--resume', request.resumeSessionId);
   return args;
 }

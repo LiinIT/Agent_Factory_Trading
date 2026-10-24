@@ -164,6 +164,7 @@ export type RunRequest = {
   role?: string;
   env?: Record<string, string>;
   browser?: boolean;
+  addDirs?: string[];
   timeoutMs: number;
   resumeSessionId?: string | null;
   signal?: AbortSignal;
