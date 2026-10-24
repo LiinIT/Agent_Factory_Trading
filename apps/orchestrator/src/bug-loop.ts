@@ -1,8 +1,8 @@
 import type { NewTask } from './store.ts';
 import type { AgentReport, Task } from './types.ts';
 
-export const CHECK_ROLES = new Set(['kiem-soat', 'nghiem-thu']);
-export const FIX_ROLE = 'xung-kich';
+export const CHECK_ROLES = new Set(['ea-soat-ma']);
+export const FIX_ROLE = 'ea-che-tao';
 
 const ROUND_PREFIX = /^(?:Diệt lỗi|Kiểm lại) vòng (\d+): /;
 
@@ -35,7 +35,7 @@ export function baseTitle(title: string): string {
 
 /**
  * Lập vòng diệt lỗi kế tiếp khi một ban kiểm báo KHÔNG ĐẠT: một nhiệm vụ sửa cho
- * Đại đội Xung kích và một nhiệm vụ kiểm lại cho đúng ban vừa kiểm. Vượt [maxRounds]
+ * Ban Chế tạo và một nhiệm vụ kiểm lại cho đúng ban vừa kiểm. Vượt [maxRounds]
  * thì trả null (dừng, xin lệnh Thủ trưởng).
  * Author: HoNgocKhanh
  * Company: MiaStudio
@@ -55,10 +55,10 @@ export function planBugFix(task: Task, report: AgentReport, maxRounds: number): 
         `Sửa **đúng và đủ** các lỗi mà ${task.role} báo trong nhiệm vụ #${task.id} — không làm việc khác.`,
         `Lỗi cần sửa:\n${report.obstacles}`,
         `Bằng chứng của bên kiểm:\n${report.evidence}`,
-        'Viết / sửa test tái hiện từng lỗi trước khi sửa (test phải FAIL trước, PASS sau).',
+        'Giữ nguyên thiết kế và logic giao dịch ngoài các lỗi đã báo; nâng version + changelog + BUILD time.',
       ].join('\n\n'),
-      expected: 'Mọi lỗi trong danh sách đã hết, có test chứng minh; analyze sạch, toàn bộ test pass.',
-      verification: 'flutter analyze; flutter test (đủ ma trận thiết bị); test tái hiện từng lỗi.',
+      expected: 'Mọi lỗi trong danh sách đã hết, có bằng chứng file:dòng; compile 0 lỗi 0 cảnh báo.',
+      verification: './dv2 compile ea/<tên>.mq5; đối chiếu từng lỗi trong brain/code-review.md.',
       assignedBy: 'ban-thong-tin',
       gate: false,
       urgent: true,

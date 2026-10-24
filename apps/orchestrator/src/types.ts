@@ -84,6 +84,7 @@ export type RoleDefinition = {
   gate: boolean;
   timeoutMinutes: number;
   allowedTools: string[];
+  writes: string[];
   prompt: string;
 };
 

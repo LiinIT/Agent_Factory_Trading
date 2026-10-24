@@ -1,7 +1,0 @@
-.dart_tool/
-.dart_frog/
-build/
-coverage/
-.env
-.env.*
-!.env.example

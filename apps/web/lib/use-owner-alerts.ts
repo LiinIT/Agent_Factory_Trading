@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 
 import type { Task } from './types';
 
-const APP_TITLE = 'Dacvu_zero';
+const APP_TITLE = 'DV2';
 
 /**
  * Báo ngay khi có việc mới cần Chỉ huy trưởng (chờ duyệt / chờ trả lời / xin quyền): gọi

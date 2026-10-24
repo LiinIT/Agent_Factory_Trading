@@ -36,6 +36,7 @@ export function parseRoleFile(content: string): RoleDefinition {
     gate: fields.get('gate') === 'true',
     timeoutMinutes: Number(fields.get('timeoutMinutes') ?? DEFAULT_TIMEOUT_MINUTES),
     allowedTools: splitList(fields.get('allowedTools')),
+    writes: splitList(fields.get('writes')),
     prompt: (match[2] ?? '').trim(),
   };
 }

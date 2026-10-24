@@ -18,7 +18,6 @@ import { QuotaState } from './quota-state.ts';
 import { AccountDesk } from './accounts.ts';
 import { ProjectDesk } from './projects.ts';
 import { Scheduler } from './scheduler.ts';
-import { resolveIosSimulator } from './simulator.ts';
 import { createApiServer } from './server.ts';
 import { FactoryStore } from './store.ts';
 import { loadTeam } from './team.ts';
@@ -94,12 +93,13 @@ async function main(): Promise<void> {
   quota.setSources(() => router.sourcesInUse());
   const envTestDir = join(config.dataDir, 'env-test');
   mkdirSync(envTestDir, { recursive: true });
-  if (!base) log.warn('[Main] không tìm thấy base barem — project mới sẽ không có khung sẵn');
   const workspace = new Workspace({
     workspaceDir: config.workspaceDir,
     templateDir: config.templateDir,
     skillsDir: config.skillsDir,
     base,
+    factoryRoot: ROOT_DIR,
+    brainEaDir: config.brainEaDir,
     projectPath: (projectId) => store.getProject(projectId)?.dir ?? null,
   });
   const projects = new ProjectDesk({ store, workspace, bus, rules: { home: homedir(), factoryRoot: ROOT_DIR } });
@@ -130,8 +130,8 @@ async function main(): Promise<void> {
     quota,
     logistics,
     mode,
-    base,
-    iosSimulator: resolveIosSimulator(),
+    ea: config.ea,
+    factoryRoot: ROOT_DIR,
     bugLoopMaxRounds: config.bugLoop.maxRounds,
     notifyManager: (input) => void manager.consult(input),
     canRunRole: (role) => router.canRun(role),

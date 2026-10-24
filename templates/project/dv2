@@ -1,0 +1,3 @@
+#!/bin/sh
+# DV2 — công cụ của ban trong project: ./dv2 compile ea/<tên>.mq5
+exec node "__DV2_ROOT__/apps/orchestrator/src/ea-cli.ts" "$@"

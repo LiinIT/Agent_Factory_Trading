@@ -14,7 +14,7 @@ const NONE = 'Không';
  */
 function ownerAction(task: Task): string {
   if (task.status === 'awaiting_answer') return 'Trả lời câu hỏi bên dưới (bấm chọn nhanh).';
-  if (task.status === 'awaiting_approval') return task.role === 'ngoai-giao' ? 'Xem GUI demo rồi Duyệt hoặc Trả lại.' : 'Duyệt hoặc Trả lại.';
+  if (task.status === 'awaiting_approval') return 'Duyệt hoặc Trả lại.';
   if (task.status === 'failed') return 'Xem lỗi rồi Thử lại hoặc Bỏ nhiệm vụ.';
   if (task.deniedTools.length > 0) return 'Xét cấp quyền bên dưới.';
   return 'Không cần lệnh.';

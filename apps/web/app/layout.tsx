@@ -7,8 +7,8 @@ import './globals.css';
 const mono = JetBrains_Mono({ subsets: ['latin', 'vietnamese'], variable: '--font-mono', display: 'swap' });
 
 export const metadata: Metadata = {
-  title: 'Dacvu_zero',
-  description: 'Dacvu_zero — đơn vị dev ảo cá nhân chạy local',
+  title: 'DV2 Agent Trading',
+  description: 'DV2 (Điệp viên Two) — đội agent tạo và kiểm chứng bot EA, chạy local',
   icons: {
     icon: { url: '/dv_zero_logo.png', type: 'image/png' },
     shortcut: '/dv_zero_logo.png',

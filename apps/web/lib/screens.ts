@@ -5,13 +5,13 @@ import {
   Gauge,
   ListTree,
   type LucideIcon,
-  Map as MapIcon,
+  FileChartColumn,
   MessagesSquare,
   ScrollText,
   ShieldCheck,
 } from 'lucide-react';
 
-export type ScreenId = 'chat' | 'approvals' | 'log' | 'tree' | 'quota' | 'reports' | 'damage' | 'sandbox' | 'env';
+export type ScreenId = 'chat' | 'approvals' | 'log' | 'tree' | 'quota' | 'reports' | 'damage' | 'bot-reports' | 'env';
 
 export type ScreenDefinition = {
   id: ScreenId;
@@ -29,7 +29,7 @@ export const SCREENS: ScreenDefinition[] = [
   { id: 'quota', title: 'Quota & hàng đợi', command: 'quota --status', icon: Gauge, shortcut: '5' },
   { id: 'reports', title: 'Báo cáo các ban', command: 'bao-cao --all', icon: ClipboardCheck, shortcut: '6' },
   { id: 'damage', title: 'Thiệt hại (Ban Hậu cần)', command: 'hau-can --thiet-hai', icon: Activity, shortcut: '7' },
-  { id: 'sandbox', title: 'GUI demo (Ban Ngoại giao)', command: 'ngoai-giao --xem', icon: MapIcon, shortcut: '8' },
+  { id: 'bot-reports', title: 'Hồ sơ & báo cáo bot (Ban Báo cáo)', command: 'bao-cao --bot', icon: FileChartColumn, shortcut: '8' },
   { id: 'env', title: 'Env · nguồn hoả lực & API key', command: 'env --nguon-hoa-luc', icon: KeyRound, shortcut: '`' },
 ];
 

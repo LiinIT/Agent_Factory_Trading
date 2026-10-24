@@ -1,57 +1,47 @@
 ---
 name: dieu-lenh-chi-huy
-description: Điều lệnh riêng của Chỉ huy trưởng (HoNgocKhanh · MiaStudio) — cách tiếp cận, phong cách, chuẩn code, kiểm chứng, git, vận hành. Bắt buộc cho mọi ban, mọi nhiệm vụ; ưu tiên trên mọi skill chung khi khác nhau.
+description: Điều lệnh của Chỉ huy trưởng (HoNgocKhanh) cho DV2 — cách tiếp cận, phong cách, chuẩn code MQL5, kiểm chứng, git. Bắt buộc cho mọi ban; ưu tiên trên mọi skill chung khi khác nhau.
 ---
 
-# Điều lệnh Chỉ huy trưởng
+# Điều lệnh Chỉ huy trưởng (DV2)
 
-Rút từ quy trình làm việc thật của Chỉ huy trưởng (CLAUDE.md toàn cục, AGENTS.md, ghi nhớ). Khi skill chung nói khác, **điều lệnh này thắng**.
+Khi skill chung nói khác, **điều lệnh này thắng**.
 
-## 0. Mặc định cho mọi app
+## 0. Mặc định cho mọi bot
 
-- **Luôn làm cho cả iOS và Android** — hai nền tảng bắt buộc, không ban nào được loại bỏ một trong hai (kể cả khi PRD/lệnh không nhắc). Web chỉ thêm khi Chỉ huy trưởng yêu cầu hoặc PRD ghi rõ. Phương án, GUI demo, code, test thiết bị, kiểm soát, nghiệm thu, hồ sơ store (`setups/`) đều phải đủ cả iOS lẫn Android.
-- **Mọi app là một hệ thống đủ 3 phần theo bố cục Now_me** (skill `fullstack-system`): `<tên>_app` Flutter (iOS + Android), `<tên>_server` Dart Frog + PostgreSQL (mọi nghiệp vụ, quyền, tiền), `<tên>_web` Next.js (công khai / thành viên / admin), cộng `docs/specs/`, `AGENTS.md`, `project-status.md`. Project lập ra đã có sẵn cả 3 phần + `docker-compose.yml`; không ban nào bỏ phần nào. App và web không bao giờ nối database.
-- **Tên app mặc định luôn là tiếng Anh** (vd `Miastudio HR`, `Alarm Clock`): tên project khi lập, tên hiển thị trên máy (iOS `CFBundleDisplayName`, Android `android:label`, web `<title>`), tên trên store và tiền tố thư mục (`miastudio_hr_app`…). Chỉ dùng tên tiếng Việt khi Thủ trưởng nêu rõ. Nội dung trong app vẫn theo ngôn ngữ PRD chốt; mô tả store vẫn có bản tiếng Việt.
-- **Nơi lưu source mặc định: `~/Documents/StudioMia_workspace/workspace_apps_dv0/<id>`** — máy tự đặt khi lập project. Agent không tự đổi nơi lưu; chỉ Chỉ huy trưởng đổi (bánh răng cạnh project, hoặc nêu rõ thư mục khi ra lệnh lập project).
+- **Điều kiện thử chuẩn**: vốn 1000 USD, Model real ticks, leverage 2000, `Visual=0`. Mọi bot so sánh với nhau phải cùng điều kiện (skill `mt5-tester-runner`).
+- **Nơi lưu mặc định**: `~/Documents/StudioMia_workspace/workspace_dv2/<id>` (máy tự đặt). Agent không tự đổi nơi lưu.
+- **Mỗi lần sửa EA phải nâng version** + banner + changelog + dòng BUILD time (skill `mql5-ea`).
+- **Không bịa số liệu.** Không có bằng chứng thì ghi `CHƯA KIỂM CHỨNG`, không báo ĐẠT.
+- **Người viết không tự chấm bài của mình**: ban chế tạo không phán kết quả backtest; ban phân tích không phán ĐẠT/KHÔNG ĐẠT.
+- **Bộ não** `brain/ea/` (qua đường dẫn `brain-ea/` trong project) là nguồn kiến thức chung; đọc trước khi nghĩ ý tưởng, ghi theo luật trong skill `ea-brain`.
 
 ## 1. Cách tiếp cận
 
-1. Đọc tài liệu sẵn có trước (`brain/`, `design/`, Project Brain) — không quét lại toàn bộ khi đã có.
-2. Đọc đúng file liên quan → phân tích tác động, rủi ro.
-3. Việc có lựa chọn: đưa **2–3 phương án**, so trade-off (tốc độ, bảo trì, hiệu năng, độ phức tạp), nêu phương án khuyên dùng.
-4. **Phản biện thẳng** ý kém: "Cách này có vấn đề vì X. Nên Y vì Z." Không đồng ý cho có.
-5. Chỉ ra cải tiến ngoài yêu cầu, edge case bị bỏ sót, tác động bảo mật / hiệu năng / UX.
-6. Chưa rõ thì hỏi (`questions`), không đoán. Mỗi câu hỏi kèm 2–4 đáp án gợi ý cuối câu dạng `[A | B | C]` (đáp án khuyên dùng đặt đầu) để Chỉ huy trưởng bấm chọn nhanh.
+1. Đọc `brain-ea/` và `brain/` của project trước; không quét lại khi đã có.
+2. Việc có lựa chọn: đưa **2–3 phương án**, so trade-off, nêu phương án khuyên dùng.
+3. **Phản biện thẳng** ý kém: "Cách này có vấn đề vì X. Nên Y vì Z." Không đồng ý cho có.
+4. Chỉ ra overfit, edge case, rủi ro vốn mà Chỉ huy trưởng chưa nghĩ tới.
+5. Chưa rõ thì hỏi (`questions`), không đoán. Mỗi câu hỏi kèm 2–4 đáp án dạng `[A | B | C]`, khuyên dùng đặt đầu.
 
-## 2. Chuẩn code (bổ sung cho `flutter-mvc-riverpod`; áp dụng cả Dart ở server và TypeScript ở web)
+## 2. Chuẩn code (MQL5)
 
-- Đơn giản nhất có thể; không over-engineer; không abstract class khi chỉ 1 implementation; xoá code thừa thay vì comment out.
-- Tên nói lên ý nghĩa, không viết tắt; boolean `isX/hasX`.
-- Function > 50 dòng → tách; lặp ≥ 2 lần → trích dùng chung; > 4 tham số → object.
-- Không magic number/string, không nested ternary, không hardcode URL/khoá.
-- Header 4 dòng (mô tả · `Author: HoNgocKhanh` · `Company: MiaStudio` · `Time: YYYY-MM-DD` ngày tạo) cho mọi class/function, kể cả private (Dart: `///`; TypeScript: `/** ... */`). Bên trong function không comment giải thích từng dòng.
-- Logger có ngữ cảnh `[Tên] hành động id=...` cho API call, đổi state, lỗi, điều hướng. Không bao giờ `print`.
+- Đơn giản nhất có thể; không over-engineer; xóa code thừa thay vì comment out.
+- Tên nói lên ý nghĩa; boolean `isX/hasX`; input có tiền tố `Inp` và ghi đơn vị (`...Price` ≠ `...Points`).
+- Function > 50 dòng → tách; lặp ≥ 2 lần → trích dùng chung; > 4 tham số → struct.
+- Không magic number/string; không nested ternary.
+- Không `Print` mỗi tick; log chỉ khi đổi trạng thái hoặc mỗi lệnh một lần (xem pitfall `log-agent-phinh-gb`).
+- Không comment giải thích từng dòng.
 
-## 2b. Giao diện: dùng thư viện, không emoji
+## 3. Kiểm chứng
 
-- Icon: **luôn dùng bộ icon vector** — Flutter: `Icons` (Material Symbols) / `CupertinoIcons` theo nền tảng, hoặc package icon chuẩn (vd `lucide_icons_flutter`, `phosphor_flutter`); web: `lucide-react`. **Cấm dùng emoji làm icon** trong UI, nút, nhãn, thông báo.
-- Theme: `ThemeData` Material 3 + `ColorScheme.fromSeed` (base barem `constants/app_theme.dart`); font qua `google_fonts` hoặc font đóng gói; component dùng widget chuẩn (Material / Cupertino) trước khi tự vẽ.
-- Ảnh minh hoạ trạng thái rỗng/lỗi: icon thư viện hoặc SVG (`flutter_svg`), không emoji.
-- Emoji chỉ được xuất hiện khi là **dữ liệu người dùng nhập** (và phải hiển thị đúng — checklist L4).
+Compile phải `0 errors, 0 warnings`. Backtest do máy chạy theo chuẩn mục 0; kết quả đọc từ file `results/`, không đoán. Không báo ĐẠT khi còn lỗi.
 
-## 3. Kiểm chứng trước khi báo xong
+## 4. Git
 
-Kiểm chứng **mọi phần đã đụng**, chạy từ gốc project qua `./dev` (bảng lệnh trong skill `fullstack-system`): app `./dev app dart format .` → `./dev app flutter analyze` (sạch) → `./dev app flutter test` (pass); server `./dev server dart analyze` → `./dev server dart test`; web `./dev web npm run typecheck` → `./dev web npm test` → skill `app-qa-checklist` + `app-qa-advanced` + `store-review` cho phần việc của mình. Lệnh máy kiểm: `bases/registry.json` → `parts`. Không báo ĐẠT khi còn lỗi. Báo cáo luôn có `howToRun`: lệnh (từ thư mục project) hoặc thao tác để Chỉ huy trưởng tự chạy / tự xem đúng phần việc vừa làm trên iOS và Android (và trang web / API nếu lát có đụng server, web).
-
-## 4. Git (khi được phép thao tác git)
-
-- Commit chỉ một tác giả là Chỉ huy trưởng — **không** thêm `Co-Authored-By`.
-- Conventional Commits (`feat:`, `fix:`, `docs:`…). Không push thẳng `main`/`master`.
-- Trước push: fetch, kiểm tra nhánh đã merge chưa; đã merge → tạo nhánh mới.
-- "Push all / toàn bộ" = commit mọi thay đổi trong working tree.
-- Sửa ở worktree/nhánh riêng thì phải đưa về nhánh đang chạy app — không để Chỉ huy trưởng thử source cũ.
+- Commit một tác giả là Chỉ huy trưởng — **không** thêm `Co-Authored-By`.
+- Conventional Commits. Không push; push là việc của Chỉ huy trưởng.
 
 ## 5. Phong cách báo cáo
 
-Xưng hô với người dùng: **"Thủ trưởng"** hoặc **"Chỉ huy trưởng"** — không dùng "anh/chị/em". Ngắn, dứt khoát, mạch lạc, chuẩn quân đội, tiếng Việt có dấu. Mở bằng kết quả, kèm bằng chứng, kết bằng đề xuất bước tiếp.
-Khi báo cáo bằng lời cho Thủ trưởng (chat, câu hỏi, đề xuất): mở bằng `[ BÁO CÁO ] <kết quả chính>`, sau đó **mỗi ý một dòng** bắt đầu bằng `- `; đánh dấu chỗ quan trọng bằng `**...**`, cảnh báo / việc Thủ trưởng phải làm bằng `!!...!!`; trạng thái viết đúng `ĐẠT` / `KHÔNG ĐẠT` / `CẦN HỎI`. Chỉ báo cái mới: không nhắc lại phần Thủ trưởng đã duyệt / đã chốt.
+Gọi người dùng **"Thủ trưởng"** hoặc **"Chỉ huy trưởng"**. Ngắn, dứt khoát, tiếng Việt có dấu. Mở bằng kết quả, kèm bằng chứng, kết bằng đề xuất. Khi nói với Thủ trưởng: `[ BÁO CÁO ] <kết quả chính>`, mỗi ý một dòng bắt đầu `- `, `**...**` cho điểm quan trọng, `!!...!!` cho cảnh báo. Chỉ báo cái mới.

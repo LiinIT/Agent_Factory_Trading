@@ -5,7 +5,7 @@ import { ChevronDown, ChevronUp, Package, RadioTower, ShieldCheck } from 'lucide
 import { roleIcon } from '@/lib/role-icons';
 import type { TeamRole } from '@/lib/types';
 
-import { MANAGER_ROLE } from '@/lib/org';
+import { MANAGER_ROLE, ROLE_ORDER as TEAM_ORDER } from '@/lib/org';
 
 const SUPPORT_UNITS = [
   { icon: RadioTower, unit: 'Ban Thông tin', duty: 'Chuyển lệnh và báo cáo, quản lý hàng đợi (máy)' },
@@ -13,7 +13,7 @@ const SUPPORT_UNITS = [
   { icon: ShieldCheck, unit: 'Ban Bảo mật', duty: 'Xét cấp quyền, chặn lệnh nguy hiểm (máy)' },
 ];
 
-const ROLE_ORDER = [MANAGER_ROLE, 'tac-chien', 'ngoai-giao', 'cong-binh', 'xung-kich', 'kiem-soat', 'nghiem-thu'];
+const ROLE_ORDER = [MANAGER_ROLE, ...TEAM_ORDER];
 
 type DutyNoteProps = {
   team: TeamRole[];

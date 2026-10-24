@@ -11,7 +11,7 @@ export type VoiceIntent =
 const MAX_COMMAND_WORDS = 6;
 
 const SCREEN_WORDS: [RegExp, ScreenId][] = [
-  [/gui demo|ngoai giao|sa ban|giao dien mau/, 'sandbox'],
+  [/bao cao bot|ho so bot|ban bao cao|diem manh/, 'bot-reports'],
   [/thiet hai|hau can/, 'damage'],
   [/bao cao cac ban|so bao cao/, 'reports'],
   [/nhat ky|log/, 'log'],

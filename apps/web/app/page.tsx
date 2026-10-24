@@ -177,7 +177,6 @@ export default function HomePage() {
             onOpenChat={() => openScreen('chat')}
             onOpenReports={() => openScreen('reports')}
             onOpenDamage={() => openScreen('damage')}
-            onOpenSandbox={() => openScreen('sandbox')}
             onSelectTask={selectTask}
             onChanged={() => void refresh()}
           />
@@ -200,7 +199,6 @@ export default function HomePage() {
                   onSelectTask={selectTask}
                   onProjectChange={setProjectId}
                   onTogglePause={togglePause}
-                  onOpenSandbox={() => openScreen('sandbox')}
                   onChanged={() => void refresh()}
                 />
               </FloatingWindow>

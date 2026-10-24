@@ -6,7 +6,7 @@ import type { BusEvent, FactoryBus } from './bus.ts';
 import { buildBriefing, situationFacts } from './briefing.ts';
 import type { Logistics } from './logistics.ts';
 import { log } from './logger.ts';
-import { prototypeRoot, servePrototype } from './prototype.ts';
+import { listReports, serveReport } from './reports.ts';
 import type { Manager } from './manager.ts';
 import type { ProjectDesk } from './projects.ts';
 import type { ModeState } from './mode.ts';
@@ -25,7 +25,7 @@ const TASK_EVENT_LIMIT = 300;
 const SSE_HEARTBEAT_MS = 25_000;
 const TOKEN_HEADER = 'x-factory-token';
 const TASK_ACTION = /^\/api\/tasks\/(\d+)\/(approve|reject|retry|cancel|grant|answer)$/;
-const PROTOTYPE_ROUTE = /^\/api\/projects\/([a-z0-9-]{1,60})\/prototype(\/.*)?$/;
+const REPORTS_ROUTE = /^\/api\/projects\/([a-z0-9-]{1,60})\/reports(\/.*)?$/;
 const TASK_EVENTS = /^\/api\/tasks\/(\d+)\/events$/;
 const PROJECT_ACTION = /^\/api\/projects\/([a-z0-9-]{1,60})\/(dir|remote|push|delete)$/;
 const PASTED_SECRET = /sk-ant-[A-Za-z0-9_-]{16,}|sk-(?:proj-)?[A-Za-z0-9_-]{32,}/;
@@ -110,9 +110,9 @@ async function handle(deps: ServerDeps, request: IncomingMessage, response: Serv
       throw new HttpError(400, error instanceof Error ? error.message : String(error));
     }
   }
-  const prototypeMatch = request.method === 'GET' ? PROTOTYPE_ROUTE.exec(url.pathname) : null;
-  if (prototypeMatch) {
-    return servePrototype(response, deps.workspace.projectDir(prototypeMatch[1] ?? ''), decodeURIComponent(prototypeMatch[2] ?? '/'));
+  const reportsMatch = request.method === 'GET' ? REPORTS_ROUTE.exec(url.pathname) : null;
+  if (reportsMatch) {
+    return serveReport(response, deps.workspace.projectDir(reportsMatch[1] ?? ''), decodeURIComponent(reportsMatch[2] ?? '/'));
   }
   if (route === 'GET /api/events') return streamEvents(deps.bus, request, response);
   if (route === 'POST /api/chat') {
@@ -319,7 +319,7 @@ function snapshot(deps: ServerDeps) {
     projects: deps.store.listProjects().map((project) => ({
       ...project,
       path: deps.workspace.projectDir(project.id),
-      hasPrototype: prototypeRoot(deps.workspace.projectDir(project.id)) !== null,
+      reports: listReports(deps.workspace.projectDir(project.id)),
     })),
     damage: { today: damage.today, byTask: damage.byTask, byRole: damage.byRole },
     tasks: deps.store.listTasks(),

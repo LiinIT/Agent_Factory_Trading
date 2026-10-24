@@ -156,10 +156,22 @@ export function ReviewHall({ center }: BuildingProps) {
  * Time: 2026-10-17
  */
 export function BuildingFor({ role, center }: { role: string; center: GridPoint }) {
-  if (role === 'tac-chien') return <CommandTent center={center} />;
-  if (role === 'ngoai-giao') return <FacadeBoard center={center} />;
-  if (role === 'cong-binh') return <Crane center={center} />;
-  if (role === 'xung-kich') return <Barracks center={center} />;
-  if (role === 'kiem-soat') return <Watchtower center={center} />;
-  return <ReviewHall center={center} />;
+  const Building = BUILDINGS[role] ?? ReviewHall;
+  return <Building center={center} />;
 }
+
+const BUILDINGS: Record<string, (props: BuildingProps) => React.JSX.Element> = {
+  'ea-trinh-sat': Watchtower,
+  'ea-mo-xe': FacadeBoard,
+  'ea-nghien-cuu': CommandTent,
+  'ea-thiet-ke': Crane,
+  'ea-che-tao': Barracks,
+  'ea-soat-ma': ReviewHall,
+  'ea-dung-ban-thu': Barracks,
+  'ea-thu-nghiem': Watchtower,
+  'ea-phan-tich': ReviewHall,
+  'ea-phan-bien': CommandTent,
+  'ea-nghiem-thu': ReviewHall,
+  'ea-ghi-nho': FacadeBoard,
+  'ea-bao-cao': Crane,
+};

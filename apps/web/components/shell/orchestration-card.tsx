@@ -23,7 +23,6 @@ type OrchestrationCardProps = {
   onOpenChat: () => void;
   onOpenReports: () => void;
   onOpenDamage: () => void;
-  onOpenSandbox: () => void;
   onSelectTask: (taskId: number) => void;
   onChanged: () => void;
 };
@@ -37,7 +36,7 @@ type OrchestrationCardProps = {
  * Time: 2026-10-16
  */
 export function OrchestrationCard(props: OrchestrationCardProps) {
-  const { state, liveLogs, onOpenApprovals, onOpenChat, onOpenReports, onOpenDamage, onOpenSandbox, onSelectTask, onChanged } = props;
+  const { state, liveLogs, onOpenApprovals, onOpenChat, onOpenReports, onOpenDamage, onSelectTask, onChanged } = props;
   const now = useNow(CLOCK_INTERVAL_MS);
   const latestThought = [...state.messages].reverse().find((message) => message.sender === 'manager');
   const latestReport = [...state.messages].reverse().find((message) => message.sender === 'report');
@@ -76,7 +75,7 @@ export function OrchestrationCard(props: OrchestrationCardProps) {
         <section className="orch-section">
           <h3>Cần Chỉ huy trưởng quyết {pending.length > 1 ? <span className="muted">+{pending.length - 1}</span> : null}</h3>
           {pending[0] ? (
-            <DecisionCard task={pending[0]} onOpenApprovals={onOpenApprovals} onOpenSandbox={onOpenSandbox} onSelectTask={onSelectTask} onChanged={onChanged} />
+            <DecisionCard task={pending[0]} onOpenApprovals={onOpenApprovals} onSelectTask={onSelectTask} onChanged={onChanged} />
           ) : (
             <p className="orch-text muted">Không có việc chờ.</p>
           )}

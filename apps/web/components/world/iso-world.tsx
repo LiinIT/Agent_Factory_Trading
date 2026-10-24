@@ -27,26 +27,41 @@ const PIPE_SAG = 26;
 const RING = { centerY: 40, radiusX: 330, radiusY: 195 };
 const POST_ROW_Y = 372;
 const POST_SPACING = 120;
-const STATION_PAD = 2.5;
+const STATION_PAD = 1.8;
 const POST_PAD = 1.5;
 const ZONE_LABEL_DROP = 78;
 const SAME_ROW_TOLERANCE = 30;
 const DEGREES = Math.PI / 180;
 
-/** Góc (độ, trục y hướng xuống) của từng ban trên vòng elip quanh tháp, xếp theo khối. */
-const STATION_ANGLES: Record<string, number> = {
-  'tac-chien': 213,
-  'ngoai-giao': 163,
-  'cong-binh': 327,
-  'xung-kich': 17,
-  'kiem-soat': 60,
-  'nghiem-thu': 120,
-};
+/** Góc (độ, trục y hướng xuống) của từng ban trên vòng elip quanh tháp, xếp theo khối, chia đều theo biên chế. */
+const STATION_ORDER = [
+  'ea-trinh-sat',
+  'ea-mo-xe',
+  'ea-nghien-cuu',
+  'ea-thiet-ke',
+  'ea-che-tao',
+  'ea-soat-ma',
+  'ea-dung-ban-thu',
+  'ea-thu-nghiem',
+  'ea-phan-tich',
+  'ea-phan-bien',
+  'ea-nghiem-thu',
+  'ea-ghi-nho',
+  'ea-bao-cao',
+];
+const FIRST_ANGLE = 235;
+const FULL_TURN = 360;
+const STATION_ANGLES: Record<string, number> = Object.fromEntries(
+  STATION_ORDER.map((role, index) => [role, (FIRST_ANGLE + (index * FULL_TURN) / STATION_ORDER.length) % FULL_TURN]),
+);
 
 const ZONES = [
-  { key: 'tac-chien', label: 'KHỐI TÁC CHIẾN', roles: ['tac-chien', 'ngoai-giao'] },
-  { key: 'ky-thuat', label: 'KHỐI KỸ THUẬT', roles: ['cong-binh', 'xung-kich'] },
-  { key: 'kiem-soat', label: 'KHỐI KIỂM SOÁT', roles: ['kiem-soat', 'nghiem-thu'] },
+  { key: 'trinh-sat', label: 'KHỐI TRINH SÁT', roles: ['ea-trinh-sat', 'ea-mo-xe'] },
+  { key: 'hoach-dinh', label: 'KHỐI HOẠCH ĐỊNH', roles: ['ea-nghien-cuu', 'ea-thiet-ke'] },
+  { key: 'che-tao', label: 'KHỐI CHẾ TẠO', roles: ['ea-che-tao', 'ea-soat-ma'] },
+  { key: 'kiem-thu', label: 'KHỐI KIỂM THỬ', roles: ['ea-dung-ban-thu', 'ea-thu-nghiem'] },
+  { key: 'danh-gia', label: 'KHỐI ĐÁNH GIÁ', roles: ['ea-phan-tich', 'ea-phan-bien', 'ea-nghiem-thu'] },
+  { key: 'tri-thuc', label: 'KHỐI TRI THỨC', roles: ['ea-ghi-nho', 'ea-bao-cao'] },
 ];
 
 /**

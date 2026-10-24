@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { chmodSync, cpSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 
 import { type BaseDefinition, matchingDirs, projectPrefix, resolvePartDir } from './bases.ts';
@@ -11,12 +11,18 @@ const DEFAULT_SLUG = 'project';
 const DS_STORE = '.DS_Store';
 const GITIGNORE = '.gitignore';
 const MAX_SCRUB_BYTES = 2 * 1024 * 1024;
+const TOOL_SCRIPT = 'dv2';
+const ROOT_PLACEHOLDER = '__DV2_ROOT__';
+const BRAIN_LINK = 'brain-ea';
+const EXECUTABLE_MODE = 0o755;
 
 export type WorkspaceDirs = {
   workspaceDir: string;
   templateDir: string;
   skillsDir: string;
   base?: BaseDefinition | null;
+  factoryRoot?: string;
+  brainEaDir?: string;
   projectPath?: (projectId: string) => string | null;
 };
 
@@ -71,7 +77,7 @@ export class Workspace {
   }
 
   /**
-   * Nơi lưu mặc định của project: `<workspaceDir>/<id>` (cấu hình `workspaceDir`, hiện là `workspace_apps_dv0`).
+   * Nơi lưu mặc định của project: `<workspaceDir>/<id>` (cấu hình `workspaceDir`, hiện là `workspace_dv2`).
    * Author: HoNgocKhanh
    * Company: MiaStudio
    * Time: 2026-10-17
@@ -130,10 +136,27 @@ export class Workspace {
     }
     cpSync(this.dirs.templateDir, dir, { recursive: true });
     cpSync(this.dirs.skillsDir, join(dir, '.claude/skills'), { recursive: true });
+    this.installEaTooling(dir);
     writeFileSync(join(dir, 'brain/brief.md'), `# ${name}\n\n${brief}\n`);
     git(dir, ['init', '-q', '-b', 'main']);
     commitIn(dir, `chore: khởi tạo project ${name}`);
     log.info({ projectId, dir }, '[Workspace] tạo project');
+  }
+
+  /**
+   * Cài công cụ cho project EA: script `./dv2` trỏ về gốc DV2 và liên kết `brain-ea` tới bộ não chung.
+   * Author: HoNgocKhanh
+   * Company: MiaStudio
+   * Time: 2026-10-24
+   */
+  private installEaTooling(dir: string): void {
+    const script = join(dir, TOOL_SCRIPT);
+    if (this.dirs.factoryRoot && existsSync(script)) {
+      writeFileSync(script, readFileSync(script, 'utf8').replaceAll(ROOT_PLACEHOLDER, this.dirs.factoryRoot));
+      chmodSync(script, EXECUTABLE_MODE);
+    }
+    const link = join(dir, BRAIN_LINK);
+    if (this.dirs.brainEaDir && existsSync(this.dirs.brainEaDir) && !existsSync(link)) symlinkSync(this.dirs.brainEaDir, link, 'dir');
   }
 
   /**

@@ -12,12 +12,19 @@ export const STATUS_LABELS: Record<TaskStatus, string> = {
 
 export const ROLE_LABELS: Record<string, string> = {
   'tham-muu-truong': 'Tham mưu trưởng',
-  'tac-chien': 'Ban Tác chiến',
-  'ngoai-giao': 'Ban Ngoại giao',
-  'cong-binh': 'Ban Công binh',
-  'xung-kich': 'Đại đội Xung kích',
-  'kiem-soat': 'Ban Kiểm soát',
-  'nghiem-thu': 'Hội đồng Nghiệm thu',
+  'ea-trinh-sat': 'Ban Trinh sát',
+  'ea-mo-xe': 'Ban Mổ xẻ',
+  'ea-nghien-cuu': 'Ban Nghiên cứu',
+  'ea-thiet-ke': 'Ban Thiết kế',
+  'ea-che-tao': 'Ban Chế tạo',
+  'ea-soat-ma': 'Ban Soát mã',
+  'ea-dung-ban-thu': 'Ban Dựng bàn thử',
+  'ea-thu-nghiem': 'Ban Thử nghiệm',
+  'ea-phan-tich': 'Ban Phân tích',
+  'ea-phan-bien': 'Ban Phản biện',
+  'ea-nghiem-thu': 'Hội đồng Nghiệm thu',
+  'ea-ghi-nho': 'Ban Ghi nhớ',
+  'ea-bao-cao': 'Ban Báo cáo',
   'hau-can': 'Ban Hậu cần',
 };
 

@@ -1,7 +1,7 @@
 {
-  "name": "agent-factory",
+  "name": "dv2",
   "private": true,
-  "description": "Đội dev ảo cá nhân: quản lý nhận việc qua web/giọng nói, chia task cho các agent Claude Code chạy local.",
+  "description": "DV2 (Điệp viên Two): đội agent tạo, kiểm chứng và học từ bot EA MT5, chạy local.",
   "workspaces": [
     "apps/*"
   ],
@@ -13,7 +13,7 @@
     "web:https": "npm run dev:https -w apps/web",
     "secrets:check": "node scripts/check-secrets.mts --all",
     "prepare": "git config core.hooksPath .githooks",
-    "restart": "lsof -tiTCP:7400 -sTCP:LISTEN | xargs kill 2>/dev/null; while lsof -tiTCP:7400 -sTCP:LISTEN >/dev/null; do sleep 0.5; done; npm run orchestrator"
+    "restart": "lsof -tiTCP:7410 -sTCP:LISTEN | xargs kill 2>/dev/null; while lsof -tiTCP:7410 -sTCP:LISTEN >/dev/null; do sleep 0.5; done; npm run orchestrator"
   },
   "engines": {
     "node": ">=24"

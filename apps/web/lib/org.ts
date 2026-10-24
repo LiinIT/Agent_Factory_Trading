@@ -15,16 +15,37 @@ export type RoleActivity = {
 
 export type NodeState = 'working' | 'asking' | 'waiting' | 'blocked' | 'idle';
 
-const ROLE_ORDER = ['tac-chien', 'ngoai-giao', 'cong-binh', 'xung-kich', 'kiem-soat', 'nghiem-thu'];
+export const ROLE_ORDER = [
+  'ea-trinh-sat',
+  'ea-mo-xe',
+  'ea-nghien-cuu',
+  'ea-thiet-ke',
+  'ea-che-tao',
+  'ea-soat-ma',
+  'ea-dung-ban-thu',
+  'ea-thu-nghiem',
+  'ea-phan-tich',
+  'ea-phan-bien',
+  'ea-nghiem-thu',
+  'ea-ghi-nho',
+  'ea-bao-cao',
+];
 
 const ROLE_SHORT: Record<string, string> = {
   'tham-muu-truong': 'tham-muu',
-  'tac-chien': 'tac-chien',
-  'ngoai-giao': 'ngoai-giao',
-  'cong-binh': 'cong-binh',
-  'xung-kich': 'xung-kich',
-  'kiem-soat': 'kiem-soat',
-  'nghiem-thu': 'nghiem-thu',
+  'ea-trinh-sat': 'trinh-sat',
+  'ea-mo-xe': 'mo-xe',
+  'ea-nghien-cuu': 'nghien-cuu',
+  'ea-thiet-ke': 'thiet-ke',
+  'ea-che-tao': 'che-tao',
+  'ea-soat-ma': 'soat-ma',
+  'ea-dung-ban-thu': 'dung-ban-thu',
+  'ea-thu-nghiem': 'thu-nghiem',
+  'ea-phan-tich': 'phan-tich',
+  'ea-phan-bien': 'phan-bien',
+  'ea-nghiem-thu': 'nghiem-thu',
+  'ea-ghi-nho': 'ghi-nho',
+  'ea-bao-cao': 'bao-cao',
 };
 
 const PERCENT = 100;

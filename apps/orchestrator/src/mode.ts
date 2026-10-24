@@ -23,9 +23,8 @@ const MODES: FactoryMode[] = ['chuan', 'ta-mon'];
 
 const COMMAND_RULES = `## Quy tắc lệnh Bash (để không bị chặn)
 - Mỗi lần gọi Bash chỉ **một lệnh đơn** đúng với quyền được cấp: không nối \`&&\`, \`;\`, \`|\`, không vòng \`for\`, không định nghĩa hàm, không \`cd\` — lệnh đã chạy sẵn trong thư mục project, dùng đường dẫn tương đối.
-- Project nhiều phần (\`<tên>_app\`, \`<tên>_server\`, \`<tên>_web\`): chạy lệnh của phần qua \`./dev <app|server|web> <lệnh>\` từ gốc project — vd \`./dev app flutter test\`, \`./dev server dart test\`, \`./dev web npm run typecheck\`.
+- Biên dịch EA: \`./dv2 compile ea/<tên>.mq5\` từ gốc project (máy chạy MetaEditor portable, in dòng \`Result:\`).
 - Đọc / tìm file: dùng tool Read, Glob, Grep thay cho \`cat\`, \`find\`, \`grep\`.
-- Xoá / đổi tên file (nếu vai có quyền): \`git rm\`, \`git mv\` (khôi phục được); \`rm\` bị cấm.
 - Lệnh ngoài danh sách bị từ chối tự động: ghi vào \`obstacles\` lệnh cần dùng và lý do, không tìm cách lách.`;
 
 /**

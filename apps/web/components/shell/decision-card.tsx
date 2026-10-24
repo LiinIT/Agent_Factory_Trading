@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, KeyRound, Map as MapIcon, MessageCircleQuestion, X } from 'lucide-react';
+import { Check, KeyRound, MessageCircleQuestion, X } from 'lucide-react';
 import { useState } from 'react';
 
 import { api } from '@/lib/api';
@@ -13,7 +13,6 @@ const SUMMARY_MAX = 150;
 type DecisionCardProps = {
   task: Task;
   onOpenApprovals: () => void;
-  onOpenSandbox: () => void;
   onSelectTask: (taskId: number) => void;
   onChanged: () => void;
 };
@@ -25,7 +24,7 @@ type DecisionCardProps = {
  * Company: MiaStudio
  * Time: 2026-10-16
  */
-export function DecisionCard({ task, onOpenApprovals, onOpenSandbox, onSelectTask, onChanged }: DecisionCardProps) {
+export function DecisionCard({ task, onOpenApprovals, onSelectTask, onChanged }: DecisionCardProps) {
   const [actionError, setActionError] = useState<string | null>(null);
   const approve = async () => {
     try {
@@ -45,11 +44,6 @@ export function DecisionCard({ task, onOpenApprovals, onOpenSandbox, onSelectTas
       <p className="muted small">{unitLabel(task.role)} · {STATUS_LABELS[task.status]}</p>
       <p className="orch-text">{truncate(summary, SUMMARY_MAX)}</p>
       <div className="decision-actions">
-        {task.role === 'ngoai-giao' && task.status === 'awaiting_approval' ? (
-          <button className="round-button is-key" onClick={onOpenSandbox} aria-label="Xem GUI demo" title="Xem GUI demo">
-            <MapIcon size={14} />
-          </button>
-        ) : null}
         {task.status === 'awaiting_answer' ? (
           <button className="round-button is-key" onClick={onOpenApprovals} aria-label="Trả lời câu hỏi" title="Trả lời câu hỏi">
             <MessageCircleQuestion size={14} />
