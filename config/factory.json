@@ -56,5 +56,13 @@
     "wineApp": "/Applications/MetaTrader 5.app/Contents/SharedSupport/wine",
     "maxTesterRunsPerRound": 12,
     "testerTimeoutMinutes": 45
+  },
+  "browser": {
+    "allowedHosts": [
+      "tradingview.com",
+      "mql5.com",
+      "github.com",
+      "githubusercontent.com"
+    ]
   }
 }

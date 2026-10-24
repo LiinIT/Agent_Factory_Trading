@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, resolve } from 'node:path';
 
+import type { BrowserPolicy } from './browser-guard.ts';
 import type { EaConfig } from './ea-runner.ts';
 import type { FactoryMode, ModeProfile } from './mode.ts';
 
@@ -27,6 +28,7 @@ export type FactoryConfig = {
   openAiPricePerMillion: { input: number; output: number };
   modes: Partial<Record<FactoryMode, ModeProfile>>;
   ea: EaConfig;
+  browser: BrowserPolicy;
   brainEaDir: string;
   workspaceDir: string;
   dataDir: string;

@@ -163,6 +163,7 @@ export type RunRequest = {
   effort?: string;
   role?: string;
   env?: Record<string, string>;
+  browser?: boolean;
   timeoutMs: number;
   resumeSessionId?: string | null;
   signal?: AbortSignal;

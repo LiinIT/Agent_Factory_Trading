@@ -1,4 +1,5 @@
 import { CHECK_ROLES, planBugFix } from './bug-loop.ts';
+import { browserBriefing, browserViolation, usesBrowser, type BrowserPolicy } from './browser-guard.ts';
 import type { FactoryBus } from './bus.ts';
 import { compileExpert, prepareRuns, runExec, runPlan, type EaConfig, type Exec } from './ea-runner.ts';
 import { log } from './logger.ts';
@@ -36,6 +37,7 @@ export type SchedulerDeps = {
   logistics: Logistics;
   mode: ModeState;
   ea?: EaConfig;
+  browser?: BrowserPolicy;
   exec?: Exec;
   factoryRoot?: string;
   bugLoopMaxRounds?: number;
@@ -163,21 +165,37 @@ export class Scheduler {
         return;
       }
       const before = this.deps.factoryRoot ? snapshotRun(projectDir, this.deps.factoryRoot) : null;
+      const allowedTools = [...new Set([...role.allowedTools, ...task.extraTools])];
+      const browser = this.deps.browser && usesBrowser(allowedTools) ? this.deps.browser : null;
+      const tripwire: { reason: string | null } = { reason: null };
+      const basePrompt = buildTaskPrompt(task, store.getProject(task.projectId)?.name ?? task.projectId, role);
       const result = await this.deps.runClaude({
         cwd: projectDir,
-        prompt: buildTaskPrompt(task, store.getProject(task.projectId)?.name ?? task.projectId, role),
+        prompt: browser ? `${basePrompt}\n\n${browserBriefing(browser)}` : basePrompt,
         systemPrompt: plan.systemPrompt,
         model: plan.model,
         effort: plan.effort,
         role: role.name,
-        allowedTools: [...new Set([...role.allowedTools, ...task.extraTools])],
+        allowedTools,
+        browser: browser !== null,
         jsonSchema: REPORT_SCHEMA,
         timeoutMs: role.timeoutMinutes * MS_PER_MINUTE,
         resumeSessionId: task.feedback ? task.sessionId : null,
         signal: controller.signal,
-        onEvent: (event) => this.onStreamEvent(task.id, event, start, controller),
+        onEvent: (event) => {
+          this.onStreamEvent(task.id, event, start, controller);
+          const violation = browser && event.kind === 'tool' && !tripwire.reason ? browserViolation(event.text, browser.allowedHosts) : null;
+          if (violation) {
+            tripwire.reason = `Ban Bảo mật: ${violation}. Đã dừng nhiệm vụ.`;
+            controller.abort(tripwire.reason);
+          }
+        },
       });
       if (this.stopping) return;
+      if (tripwire.reason) {
+        this.finish(store.requireTask(task.id), role, { ...result, ok: false, text: tripwire.reason }, start);
+        return;
+      }
       const changed = before && this.deps.factoryRoot ? changedBetween(before, snapshotRun(projectDir, this.deps.factoryRoot)) : [];
       const violations = scopeViolations(changed, role.writes);
       const verified = result.ok && violations.length === 0 ? await this.verifyCompile(task, role, projectDir, changed, result) : result;

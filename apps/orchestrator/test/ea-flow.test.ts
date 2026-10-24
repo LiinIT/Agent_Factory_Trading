@@ -219,3 +219,45 @@ test('Soát mã KHÔNG ĐẠT mở vòng sửa giao Ban Chế tạo (không ph�
   assert.match(fix?.detail ?? '', /ea\/bot\.mq5:42/);
   assert.match(fix?.verification ?? '', /\.\/dv2 compile/);
 });
+
+test('Trinh sát có trình duyệt: bật --chrome, kèm quy tắc trình duyệt; mở trang ngoài danh sách thì dừng và báo lỗi', async () => {
+  const { store, scheduler, team, notifications } = eaScheduler([]);
+  team.set('ea-trinh-sat', { ...role('ea-trinh-sat'), allowedTools: ['Read', 'mcp__claude-in-chrome__navigate'], writes: ['brain-ea/scouting/'] });
+  scheduler.deps.browser = { allowedHosts: ['tradingview.com'], deviceId: 'DEV-1' };
+  const requests: Array<{ prompt: string; browser?: boolean }> = [];
+  scheduler.deps.runClaude = async (request) => {
+    requests.push({ prompt: request.prompt, browser: request.browser });
+    request.onEvent?.({ kind: 'tool', text: 'mcp__claude-in-chrome__navigate: https://www.tradingview.com/script/abc/' });
+    request.onEvent?.({ kind: 'tool', text: 'mcp__claude-in-chrome__navigate: https://evil.example.com/steal' });
+    return okResult('xong', report('ĐẠT'));
+  };
+  const task = store.insertTask({ ...TASK, role: 'ea-trinh-sat', title: 'Tìm indicator', gate: false });
+
+  scheduler.tick();
+  await scheduler.idle();
+
+  assert.equal(requests[0]?.browser, true);
+  assert.match(requests[0]?.prompt ?? '', /Quy tắc trình duyệt[\s\S]*tradingview\.com[\s\S]*select_browser với deviceId DEV-1/);
+  const failed = store.requireTask(task.id);
+  assert.equal(failed.status, 'failed');
+  assert.match(failed.error ?? '', /ngoài danh sách cho phép: evil\.example\.com/);
+  assert.match(notifications.at(-1)?.text ?? '', /evil\.example\.com/);
+});
+
+test('Ban không có công cụ trình duyệt thì không bật --chrome và không bị gắn quy tắc trình duyệt', async () => {
+  const { store, scheduler, team } = eaScheduler([]);
+  team.set('ea-mo-xe', { ...role('ea-mo-xe'), writes: [] });
+  scheduler.deps.browser = { allowedHosts: ['tradingview.com'] };
+  let seen: { prompt: string; browser?: boolean } | null = null;
+  scheduler.deps.runClaude = async (request) => {
+    seen = { prompt: request.prompt, browser: request.browser };
+    return okResult('xong', report('ĐẠT'));
+  };
+  store.insertTask({ ...TASK, role: 'ea-mo-xe', title: 'Mổ xẻ', gate: false });
+
+  scheduler.tick();
+  await scheduler.idle();
+
+  assert.deepEqual(seen && { browser: (seen as { browser?: boolean }).browser }, { browser: false });
+  assert.doesNotMatch((seen as unknown as { prompt: string }).prompt, /Quy tắc trình duyệt/);
+});

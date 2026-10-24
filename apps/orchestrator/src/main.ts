@@ -131,6 +131,7 @@ async function main(): Promise<void> {
     logistics,
     mode,
     ea: config.ea,
+    browser: config.browser,
     factoryRoot: ROOT_DIR,
     bugLoopMaxRounds: config.bugLoop.maxRounds,
     notifyManager: (input) => void manager.consult(input),
