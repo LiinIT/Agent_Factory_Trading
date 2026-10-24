@@ -61,6 +61,6 @@ done
 curl -sf -o /dev/null "$WEB_URL" || fail "Web chưa lên sau 90 giây — xem $LOG_DIR/web.log"
 
 say_line "Sẵn sàng: $WEB_URL  (giữ Space để nói · phím \` mở Env · ? xem phím tắt)"
-[ "${DACVU_NO_OPEN:-0}" = "1" ] || open "$WEB_URL"
+[ "${DV2_NO_OPEN:-0}" = "1" ] || open "$WEB_URL"
 say_line "Log: $LOG_DIR · Ctrl+C hoặc đóng cửa sổ để tắt."
 wait

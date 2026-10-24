@@ -37,8 +37,8 @@ export function ProjectSettings({ project }: { project: Project }) {
         key={`dir-${project.dir ?? ''}`}
         label="Nơi lưu source"
         initialValue={project.dir ?? ''}
-        placeholder="~/Documents/StudioMia_workspace/ten-app"
-        hint="Thư mục mới hoặc trống; để trống = nơi mặc định ~/Documents/StudioMia_workspace/workspace_apps_dv0."
+        placeholder="~/Documents/StudioMia_workspace/ten-bot"
+        hint="Thư mục mới hoặc trống; để trống = nơi mặc định ~/Documents/StudioMia_workspace/workspace_dv2."
         submitLabel="Chuyển"
         onSubmit={(dir) => api.moveProject(project.id, dir)}
       />

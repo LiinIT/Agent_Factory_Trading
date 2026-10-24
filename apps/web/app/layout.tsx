@@ -10,8 +10,8 @@ export const metadata: Metadata = {
   title: 'DV2 Agent Trading',
   description: 'DV2 (Điệp viên Two) — đội agent tạo và kiểm chứng bot EA, chạy local',
   icons: {
-    icon: { url: '/dv_zero_logo.png', type: 'image/png' },
-    shortcut: '/dv_zero_logo.png',
+    icon: { url: '/dv2_logo.svg', type: 'image/svg+xml' },
+    shortcut: '/dv2_logo.svg',
   },
 };
 

@@ -18,7 +18,7 @@ type DecisionCardProps = {
 };
 
 /**
- * Việc đầu tiên cần Chỉ huy trưởng quyết: duyệt nhanh, xem GUI demo, trả lời câu hỏi
+ * Việc đầu tiên cần Chỉ huy trưởng quyết: duyệt nhanh, trả lời câu hỏi
  * hoặc cấp quyền (mở màn hình đầy đủ).
  * Author: HoNgocKhanh
  * Company: MiaStudio

@@ -22,7 +22,7 @@ function Pyramid({ center, half, base, height }: { center: GridPoint; half: numb
 }
 
 /**
- * Ban Tác chiến — lều chỉ huy: đế + lều mái nhọn + cột cờ.
+ * Công trình kiểu lều chỉ huy: đế + lều mái nhọn + cột cờ.
  * Author: HoNgocKhanh
  * Company: MiaStudio
  * Time: 2026-10-17
@@ -42,7 +42,7 @@ export function CommandTent({ center }: BuildingProps) {
 }
 
 /**
- * Ban Ngoại giao — tấm "bộ mặt" lớn đứng trên bệ (giống bảng trình chiếu).
+ * Công trình kiểu tấm bảng đứng trên bệ (giống bảng trình chiếu).
  * Author: HoNgocKhanh
  * Company: MiaStudio
  * Time: 2026-10-17
@@ -65,7 +65,7 @@ export function FacadeBoard({ center }: BuildingProps) {
 }
 
 /**
- * Ban Công binh — cần cẩu: thân cột, cần ngang, dây móc, khối vật liệu.
+ * Công trình kiểu cần cẩu: thân cột, cần ngang, dây móc, khối vật liệu.
  * Author: HoNgocKhanh
  * Company: MiaStudio
  * Time: 2026-10-17
@@ -86,7 +86,7 @@ export function Crane({ center }: BuildingProps) {
 }
 
 /**
- * Đại đội Xung kích — doanh trại: khối dài có mái, lính chạy quanh khi đang làm.
+ * Công trình kiểu doanh trại: khối dài có mái, lính chạy quanh khi đang làm.
  * Author: HoNgocKhanh
  * Company: MiaStudio
  * Time: 2026-10-17
@@ -116,7 +116,7 @@ export function Barracks({ center }: BuildingProps) {
 }
 
 /**
- * Ban Kiểm soát — tháp canh: thân cao, buồng gác phía trên.
+ * Công trình kiểu tháp canh: thân cao, buồng gác phía trên.
  * Author: HoNgocKhanh
  * Company: MiaStudio
  * Time: 2026-10-17

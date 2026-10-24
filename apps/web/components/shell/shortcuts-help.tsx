@@ -16,7 +16,7 @@ const GENERAL_SHORTCUTS: [string, string][] = [
   ['?', 'Bảng phím tắt này'],
 ];
 
-const VOICE_COMMANDS = ['"mở GUI demo" · "mở thiệt hại" · "mở nhật ký" …', '"báo cáo tình hình"', '"tạm dừng" · "tiếp tục" · "đóng"'];
+const VOICE_COMMANDS = ['"mở báo cáo bot" · "mở thiệt hại" · "mở nhật ký" …', '"báo cáo tình hình"', '"tạm dừng" · "tiếp tục" · "đóng"'];
 
 type ShortcutsHelpProps = {
   isOpen: boolean;

@@ -18,7 +18,7 @@ type ApprovalItemProps = {
 };
 
 /**
- * Một việc cần Chỉ huy trưởng: báo cáo phân tầng (đọc ngay → tóm tắt → chi tiết), xem GUI demo,
+ * Một việc cần Chỉ huy trưởng: báo cáo phân tầng (đọc ngay → tóm tắt → chi tiết),
  * trả lời câu hỏi, duyệt, cấp quyền.
  * Author: HoNgocKhanh
  * Company: MiaStudio
